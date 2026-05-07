@@ -1,228 +1,416 @@
 <!DOCTYPE html>
-
-<html class="dark" lang="en"><head>
+<html class="dark" lang="en">
+<head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Wheelchair Accessibility Map - Report Management</title>
+<title>Report Management - W-A-M</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<!-- Leaflet for heatmap -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 <style>
-        .aurora-gradient {
-            background: radial-gradient(at 20% 80%, hsla(212,89%,55%,0.2) 0px, transparent 50%), 
-                        radial-gradient(at 80% 20%, hsla(288,89%,55%,0.2) 0px, transparent 50%),
-                        radial-gradient(at 50% 50%, hsla(180,89%,55%,0.15) 0px, transparent 50%);
-            animation: aurora 15s ease-in-out infinite;
-        }
+  .aurora-gradient {
+    background: radial-gradient(at 20% 80%, hsla(212,89%,55%,0.2) 0px, transparent 50%),
+                radial-gradient(at 80% 20%, hsla(288,89%,55%,0.2) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, hsla(180,89%,55%,0.15) 0px, transparent 50%);
+  }
+  .glassmorphism {
+    background: rgba(15,23,35,0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  #heatmap { width:100%; height:320px; border-radius:0.75rem; z-index:1; }
+  .leaflet-container { background: #0f1723 !important; }
 
-        @keyframes aurora {
-            0% { background-position: 20% 80%, 80% 20%, 50% 50%; }
-            50% { background-position: 80% 20%, 20% 80%, 50% 50%; }
-            100% { background-position: 20% 80%, 80% 20%, 50% 50%; }
-        }
+  /* Calendar */
+  .cal-day {
+    width:36px; height:36px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:.85rem; color:rgba(255,255,255,0.6);
+    transition: background .15s, color .15s;
+  }
+  .cal-day:hover { background:rgba(255,255,255,0.1); color:#fff; }
+  .cal-day.today { background:#0667f9; color:#fff; font-weight:700; }
+  .cal-day.selected { background:#0667f9; color:#fff; font-weight:700; box-shadow:0 0 0 3px rgba(6,103,249,0.4); }
+  .cal-day.has-data { position:relative; }
+  .cal-day.has-data::after {
+    content:''; position:absolute; bottom:3px; left:50%; transform:translateX(-50%);
+    width:4px; height:4px; border-radius:50%; background:#22d3ee;
+  }
+  .cal-day.empty { pointer-events:none; }
 
-        .glassmorphism {
-            background: rgba(15, 23, 35, 0.6); /* bg-background-dark/60 */
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-    </style>
-<script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            colors: {
-              "primary": "#0667f9",
-              "background-light": "#f5f7f8",
-              "background-dark": "#0f1723",
-            },
-            fontFamily: {
-              "display": ["Space Grotesk", "sans-serif"]
-            },
-            borderRadius: {"DEFAULT": "0.75rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
-          },
-        },
-      }
-    </script>
+  /* Day data panel */
+  #day-panel { transition: all .3s ease; }
+  @keyframes spin { from{transform:rotate(0)}to{transform:rotate(360deg)} }
+  .spin { animation: spin 1s linear infinite; }
+</style>
+<script>
+  tailwind.config = {
+    darkMode:"class",
+    theme:{ extend:{
+      colors:{ "primary":"#0667f9", "background-dark":"#0f1723" },
+      fontFamily:{ "display":["Space Grotesk","sans-serif"] },
+      borderRadius:{ "DEFAULT":"0.75rem","lg":"1rem","xl":"1.5rem","full":"9999px" },
+    }}
+  }
+</script>
 </head>
 <body class="bg-background-dark font-display text-white">
 <div class="relative flex min-h-screen w-full">
-<!-- Aurora Background -->
-<div class="absolute inset-0 aurora-gradient z-0"></div>
-<!-- Sidebar -->
-<aside class="relative z-10 w-64 flex-shrink-0 bg-background-dark/50 p-4">
-<div class="flex h-full flex-col justify-between">
-<div class="flex flex-col gap-8">
-<div class="flex items-center gap-3 px-2">
-<span class="material-symbols-outlined text-primary" style="font-size: 32px;">wheelchair_pickup</span>
-<h1 class="text-white text-xl font-bold">W-A-M</h1>
+  <div class="absolute inset-0 aurora-gradient z-0"></div>
+
+  <!-- Sidebar -->
+  <aside class="relative z-10 w-64 flex-shrink-0 bg-background-dark/50 p-4">
+    <div class="flex h-full flex-col justify-between">
+      <div class="flex flex-col gap-8">
+        <div class="flex items-center gap-3 px-2">
+          <span class="material-symbols-outlined text-primary" style="font-size:32px">wheelchair_pickup</span>
+          <h1 class="text-white text-xl font-bold">W-A-M</h1>
+        </div>
+        <nav class="flex flex-col gap-2">
+          <a href="#" id="nav-dashboard" class="flex items-center gap-3 px-3 py-2 rounded-lg text-white/70 hover:bg-primary/20 hover:text-white transition-colors">
+            <span class="material-symbols-outlined">dashboard</span>
+            <p class="text-sm font-medium">Dashboard</p>
+          </a>
+          <a href="report_management.html" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/20 text-white">
+            <span class="material-symbols-outlined">assessment</span>
+            <p class="text-sm font-medium">Reports</p>
+          </a>
+          <a href="admin_users.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-white/70 hover:bg-primary/20 hover:text-white transition-colors">
+            <span class="material-symbols-outlined">group</span>
+            <p class="text-sm font-medium">Users</p>
+          </a>
+          <a href="admin_locations.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-white/70 hover:bg-primary/20 hover:text-white transition-colors">
+            <span class="material-symbols-outlined">place</span>
+            <p class="text-sm font-medium">Locations</p>
+          </a>
+          <a href="admin_settings.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-white/70 hover:bg-primary/20 hover:text-white transition-colors">
+            <span class="material-symbols-outlined">settings</span>
+            <p class="text-sm font-medium">Settings</p>
+          </a>
+        </nav>
+      </div>
+      <div class="flex flex-col gap-4">
+        <div class="border-t border-white/10 my-2"></div>
+        <div class="flex items-center gap-3 px-2">
+          <div class="w-10 h-10 rounded-full bg-primary/30 flex items-center justify-center">
+            <span class="material-symbols-outlined text-primary">person</span>
+          </div>
+          <div>
+            <p class="text-white text-sm font-medium" id="sidebar-name">Admin</p>
+            <p class="text-white/60 text-xs" id="sidebar-email">admin@wam.app</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="flex-1 p-8 overflow-y-auto relative z-10">
+    <div class="flex flex-col gap-8">
+
+      <!-- Header -->
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p class="text-white text-3xl font-bold tracking-tight">Report Management Dashboard</p>
+          <p class="text-white/60 text-base mt-1">Monitor system activity and generate reports.</p>
+        </div>
+        <div class="flex gap-3">
+          <button onclick="exportPDF()" class="flex items-center gap-2 h-10 px-4 rounded-lg bg-white/10 text-white text-sm font-bold hover:bg-white/20 transition-colors">
+            <span class="material-symbols-outlined text-base">picture_as_pdf</span> Export PDF
+          </button>
+          <button onclick="exportCSV()" class="flex items-center gap-2 h-10 px-4 rounded-lg bg-white/10 text-white text-sm font-bold hover:bg-white/20 transition-colors">
+            <span class="material-symbols-outlined text-base">table_chart</span> Export CSV
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="glassmorphism p-5 rounded-xl flex flex-col gap-2">
+          <p class="text-white/60 text-sm">Total Reports</p>
+          <p class="text-3xl font-bold text-white" id="kpi-reports">—</p>
+          <p class="text-green-400 text-xs flex items-center gap-1"><span class="material-symbols-outlined text-sm">arrow_upward</span>+12% this month</p>
+        </div>
+        <div class="glassmorphism p-5 rounded-xl flex flex-col gap-2">
+          <p class="text-white/60 text-sm">Active Users</p>
+          <p class="text-3xl font-bold text-white" id="kpi-users">—</p>
+          <p class="text-green-400 text-xs flex items-center gap-1"><span class="material-symbols-outlined text-sm">arrow_upward</span>+5.2% this month</p>
+        </div>
+        <div class="glassmorphism p-5 rounded-xl flex flex-col gap-2">
+          <p class="text-white/60 text-sm">Avg. Location Rating</p>
+          <p class="text-3xl font-bold text-white flex items-center gap-1" id="kpi-rating">4.2 <span class="material-symbols-outlined text-yellow-400" style="font-size:28px">star</span></p>
+          <p class="text-red-400 text-xs flex items-center gap-1"><span class="material-symbols-outlined text-sm">arrow_downward</span>-0.1 last month</p>
+        </div>
+        <div class="glassmorphism p-5 rounded-xl flex flex-col gap-2">
+          <p class="text-white/60 text-sm">Locations</p>
+          <p class="text-3xl font-bold text-white" id="kpi-locations">—</p>
+          <p class="text-white/60 text-xs">Updated just now</p>
+        </div>
+      </div>
+
+      <!-- Heatmap + Calendar -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Heatmap -->
+        <div class="lg:col-span-2 glassmorphism rounded-xl p-4 flex flex-col gap-4">
+          <div class="flex flex-wrap justify-between items-center gap-2">
+            <h2 class="text-white text-lg font-bold">Accessibility Data Heatmap</h2>
+            <div class="flex items-center gap-2">
+              <select id="heatmap-filter" onchange="updateHeatmap()" class="bg-white/10 text-white text-sm rounded-md border-0 focus:ring-2 focus:ring-primary h-9 px-2">
+                <option value="all">All Types</option>
+                <option value="ramp">Ramp Access</option>
+                <option value="restroom">Accessible Restrooms</option>
+                <option value="parking">Parking</option>
+              </select>
+              <div class="flex items-center gap-1 text-xs text-white/60">
+                <span class="w-3 h-3 rounded-full bg-green-400 inline-block"></span> High
+                <span class="w-3 h-3 rounded-full bg-yellow-400 inline-block ml-2"></span> Med
+                <span class="w-3 h-3 rounded-full bg-red-400 inline-block ml-2"></span> Low
+              </div>
+            </div>
+          </div>
+          <div id="heatmap"></div>
+        </div>
+
+        <!-- Calendar -->
+        <div class="glassmorphism rounded-xl p-4 flex flex-col gap-3">
+          <!-- Month nav -->
+          <div class="flex items-center justify-between">
+            <button onclick="prevMonth()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors">
+              <span class="material-symbols-outlined text-white" style="font-size:20px">chevron_left</span>
+            </button>
+            <p id="cal-title" class="text-white text-base font-bold"></p>
+            <button onclick="nextMonth()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors">
+              <span class="material-symbols-outlined text-white" style="font-size:20px">chevron_right</span>
+            </button>
+          </div>
+
+          <!-- Day headers -->
+          <div class="grid grid-cols-7 text-center">
+            <span class="text-white/40 text-xs font-bold h-8 flex items-center justify-center">Su</span>
+            <span class="text-white/40 text-xs font-bold h-8 flex items-center justify-center">Mo</span>
+            <span class="text-white/40 text-xs font-bold h-8 flex items-center justify-center">Tu</span>
+            <span class="text-white/40 text-xs font-bold h-8 flex items-center justify-center">We</span>
+            <span class="text-white/40 text-xs font-bold h-8 flex items-center justify-center">Th</span>
+            <span class="text-white/40 text-xs font-bold h-8 flex items-center justify-center">Fr</span>
+            <span class="text-white/40 text-xs font-bold h-8 flex items-center justify-center">Sa</span>
+          </div>
+
+          <!-- Days grid -->
+          <div id="cal-days" class="grid grid-cols-7 gap-y-1 place-items-center"></div>
+
+          <!-- Selected day data -->
+          <div id="day-panel" class="mt-2 p-3 rounded-xl bg-white/5 border border-white/10 min-h-[100px]">
+            <p class="text-white/40 text-xs text-center mt-6">Click a day to see data</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
 </div>
-<div class="flex flex-col gap-2">
-<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-white/70 hover:bg-primary/20 hover:text-white transition-colors" href="#">
-<span class="material-symbols-outlined">dashboard</span>
-<p class="text-sm font-medium">Dashboard</p>
-</a>
-<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/20 text-white" href="#">
-<span class="material-symbols-outlined">assessment</span>
-<p class="text-sm font-medium">Reports</p>
-</a>
-<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-white/70 hover:bg-primary/20 hover:text-white transition-colors" href="#">
-<span class="material-symbols-outlined">group</span>
-<p class="text-sm font-medium">Users</p>
-</a>
-<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-white/70 hover:bg-primary/20 hover:text-white transition-colors" href="#">
-<span class="material-symbols-outlined">place</span>
-<p class="text-sm font-medium">Locations</p>
-</a>
-<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-white/70 hover:bg-primary/20 hover:text-white transition-colors" href="#">
-<span class="material-symbols-outlined">settings</span>
-<p class="text-sm font-medium">Settings</p>
-</a>
-</div>
-</div>
-<div class="flex flex-col gap-4">
-<div class="border-t border-white/10 my-2"></div>
-<div class="flex items-center gap-3 px-2">
-<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="Admin User Avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAo7X229zDaNgjy1c3P-0jJktldxmmsesSrQpn6-DPO2uftzsTwgUdc8C_aHfK0-vA3zl0voD9iK75f80PdDzutnIMpkxC9634jTl7AW32hOXW7KuRUS6Diq04261lnr_MqCfygsDAQQj3IX9zux9FQqOjDqvFcnvk0wxSXppNjSXB8i3lhfsM9AFkRI-x0WxjklB9Yp7QfLy4yL7agv3cXsJxHzZuPdRWYejrSQJKtlZEGIeiD99ekiHCNV9tWXX0Y9Hx0O3LHVhA");'></div>
-<div class="flex flex-col">
-<h1 class="text-white text-sm font-medium">Admin</h1>
-<p class="text-white/60 text-xs">admin@wam.app</p>
-</div>
-</div>
-</div>
-</div>
-</aside>
-<!-- Main Content -->
-<main class="flex-1 p-8 overflow-y-auto">
-<div class="relative z-10 flex flex-col gap-8">
-<!-- Page Header -->
-<div class="flex flex-wrap items-center justify-between gap-4">
-<div class="flex flex-col gap-1">
-<p class="text-white text-3xl font-bold tracking-tight">Report Management Dashboard</p>
-<p class="text-white/60 text-base">Monitor system activity and generate reports.</p>
-</div>
-<div class="flex items-center gap-4">
-<button class="flex items-center justify-center gap-2 min-w-[84px] max-w-[480px] cursor-pointer rounded-lg h-10 px-4 bg-white/10 text-white text-sm font-bold hover:bg-white/20 transition-colors">
-<span class="material-symbols-outlined text-base">picture_as_pdf</span>
-<span class="truncate">Export PDF</span>
-</button>
-<button class="flex items-center justify-center gap-2 min-w-[84px] max-w-[480px] cursor-pointer rounded-lg h-10 px-4 bg-white/10 text-white text-sm font-bold hover:bg-white/20 transition-colors">
-<span class="material-symbols-outlined text-base">csv</span>
-<span class="truncate">Export CSV</span>
-</button>
-</div>
-</div>
-<!-- KPI Cards -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-<div class="glassmorphism p-5 rounded-xl flex flex-col gap-2">
-<p class="text-white/60 text-sm">Total Reports</p>
-<p class="text-3xl font-bold text-white">12,453</p>
-<p class="text-green-400 text-xs flex items-center gap-1">
-<span class="material-symbols-outlined text-sm">arrow_upward</span>
-                            +12% this month
-                        </p>
-</div>
-<div class="glassmorphism p-5 rounded-xl flex flex-col gap-2">
-<p class="text-white/60 text-sm">Active Users</p>
-<p class="text-3xl font-bold text-white">3,892</p>
-<p class="text-green-400 text-xs flex items-center gap-1">
-<span class="material-symbols-outlined text-sm">arrow_upward</span>
-                            +5.2% this month
-                        </p>
-</div>
-<div class="glassmorphism p-5 rounded-xl flex flex-col gap-2">
-<p class="text-white/60 text-sm">Average Location Rating</p>
-<p class="text-3xl font-bold text-white flex items-center gap-1">4.2 <span class="material-symbols-outlined text-yellow-400" style="font-size: 28px;">star</span></p>
-<p class="text-red-400 text-xs flex items-center gap-1">
-<span class="material-symbols-outlined text-sm">arrow_downward</span>
-                            -0.1 last month
-                        </p>
-</div>
-<div class="glassmorphism p-5 rounded-xl flex flex-col gap-2">
-<p class="text-white/60 text-sm">New Reports (24h)</p>
-<p class="text-3xl font-bold text-white">78</p>
-<p class="text-white/60 text-xs">Updated 5 mins ago</p>
-</div>
-</div>
-<!-- Main Section: Map and Calendar -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-<div class="lg:col-span-2 flex flex-col gap-4">
-<div class="glassmorphism rounded-xl p-4 flex flex-col gap-4">
-<div class="flex flex-wrap justify-between items-center gap-2">
-<h2 class="text-white text-lg font-bold tracking-tight">Accessibility Data Heatmap</h2>
-<div class="flex items-center gap-2">
-<select class="bg-white/10 text-white text-sm rounded-md border-0 focus:ring-2 focus:ring-primary h-9">
-<option>All Report Types</option>
-<option>Ramp Access</option>
-<option>Accessible Restrooms</option>
-<option>Parking</option>
-</select>
-<button class="flex items-center justify-center gap-2 min-w-[84px] cursor-pointer rounded-md h-9 px-3 bg-primary/20 text-white text-sm font-bold hover:bg-primary/30 transition-colors">
-<span class="material-symbols-outlined text-base">filter_list</span>
-<span>Filters</span>
-</button>
-</div>
-</div>
-<div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg object-cover" data-alt="A futuristic heatmap of a city showing accessibility data with glowing points of interest." data-location="New York City" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuArqCzneQZCxYTXyJx5ZIlS2lXyylK4O1gFZFsG-2gxxvskVpUlSzKvMlJPPmNGBmKCt6aIwmM-YovAqybM1pQcYdrdjILT5KyZEW92spuAfIGh7btDnzQbUZmQiUObmdHDJkbJIoIeeTka12yxsMlPNDubO04ksXddBe1IFg8GuATygHKKqN6xexB-uby_CIxVisrq8puA9oWthd8cngKkcMztykmst_ZZE8gdUS2gCDuVv2MzyMWviiKeH2T5xIS9ZOYPn6KDfBY");'></div>
-</div>
-</div>
-<div class="glassmorphism rounded-xl p-4 flex flex-col">
-<div class="flex flex-col gap-0.5">
-<div class="flex items-center p-1 justify-between">
-<button class="text-white hover:bg-white/10 rounded-full">
-<div class="flex size-8 items-center justify-center" data-icon="CaretLeft"><span class="material-symbols-outlined">chevron_left</span></div>
-</button>
-<p class="text-white text-base font-bold text-center">October 2025</p>
-<button class="text-white hover:bg-white/10 rounded-full">
-<div class="flex size-8 items-center justify-center" data-icon="CaretRight"><span class="material-symbols-outlined">chevron_right</span></div>
-</button>
-</div>
-<div class="grid grid-cols-7 text-center">
-<p class="text-white/60 text-xs font-bold h-10 flex items-center justify-center">S</p>
-<p class="text-white/60 text-xs font-bold h-10 flex items-center justify-center">M</p>
-<p class="text-white/60 text-xs font-bold h-10 flex items-center justify-center">T</p>
-<p class="text-white/60 text-xs font-bold h-10 flex items-center justify-center">W</p>
-<p class="text-white/60 text-xs font-bold h-10 flex items-center justify-center">T</p>
-<p class="text-white/60 text-xs font-bold h-10 flex items-center justify-center">F</p>
-<p class="text-white/60 text-xs font-bold h-10 flex items-center justify-center">S</p>
-<button class="h-10 w-full text-white/50 text-sm font-medium col-start-4"><div class="flex size-full items-center justify-center rounded-full">1</div></button>
-<button class="h-10 w-full text-white/50 text-sm font-medium"><div class="flex size-full items-center justify-center rounded-full">2</div></button>
-<button class="h-10 w-full text-white/50 text-sm font-medium"><div class="flex size-full items-center justify-center rounded-full">3</div></button>
-<button class="h-10 w-full text-white/50 text-sm font-medium"><div class="flex size-full items-center justify-center rounded-full">4</div></button>
-<button class="h-10 w-full text-white text-sm font-medium"><div class="flex size-full items-center justify-center rounded-l-full bg-primary/20">5</div></button>
-<button class="h-10 w-full text-white text-sm font-medium bg-primary/20"><div class="flex size-full items-center justify-center">6</div></button>
-<button class="h-10 w-full text-white text-sm font-medium bg-primary/20"><div class="flex size-full items-center justify-center">7</div></button>
-<button class="h-10 w-full text-white text-sm font-medium bg-primary/20"><div class="flex size-full items-center justify-center">8</div></button>
-<button class="h-10 w-full text-white text-sm font-medium bg-primary/20"><div class="flex size-full items-center justify-center">9</div></button>
-<button class="h-10 w-full text-white text-sm font-medium bg-primary/20"><div class="flex size-full items-center justify-center">10</div></button>
-<button class="h-10 w-full text-white text-sm font-medium bg-primary/20"><div class="flex size-full items-center justify-center rounded-r-full">11</div></button>
-<button class="h-10 w-full text-white text-sm font-medium"><div class="flex size-full items-center justify-center rounded-full hover:bg-white/10">12</div></button>
-<button class="h-10 w-full text-white text-sm font-medium"><div class="flex size-full items-center justify-center rounded-full hover:bg-white/10">13</div></button>
-<button class="h-10 w-full text-white text-sm font-medium"><div class="flex size-full items-center justify-center rounded-full hover:bg-white/10">14</div></button>
-<button class="h-10 w-full text-white text-sm font-medium"><div class="flex size-full items-center justify-center rounded-full bg-primary text-white">15</div></button>
-<button class="h-10 w-full text-white text-sm font-medium"><div class="flex size-full items-center justify-center rounded-full hover:bg-white/10">16</div></button>
-<button class="h-10 w-full text-white text-sm font-medium"><div class="flex size-full items-center justify-center rounded-full hover:bg-white/10">17</div></button>
-<button class="h-10 w-full text-white text-sm font-medium"><div class="flex size-full items-center justify-center rounded-full hover:bg-white/10">18</div></button>
-<button class="h-10 w-full text-white text-sm font-medium"><div class="flex size-full items-center justify-center rounded-full hover:bg-white/10">19</div></button>
-<button class="h-10 w-full text-white text-sm font-medium"><div class="flex size-full items-center justify-center rounded-full hover:bg-white/10">20</div></button>
-<button class="h-10 w-full text-white text-sm font-medium"><div class="flex size-full items-center justify-center rounded-full hover:bg-white/10">21</div></button>
-<button class="h-10 w-full text-white text-sm font-medium"><div class="flex size-full items-center justify-center rounded-full hover:bg-white/10">22</div></button>
-<button class="h-10 w-full text-white text-sm font-medium"><div class="flex size-full items-center justify-center rounded-full hover:bg-white/10">23</div></button>
-<button class="h-10 w-full text-white text-sm font-medium"><div class="flex size-full items-center justify-center rounded-full hover:bg-white/10">24</div></button>
-<button class="h-10 w-full text-white text-sm font-medium"><div class="flex size-full items-center justify-center rounded-full hover:bg-white/10">25</div></button>
-<button class="h-10 w-full text-white text-sm font-medium"><div class="flex size-full items-center justify-center rounded-full hover:bg-white/10">26</div></button>
-<button class="h-10 w-full text-white text-sm font-medium"><div class="flex size-full items-center justify-center rounded-full hover:bg-white/10">27</div></button>
-<button class="h-10 w-full text-white text-sm font-medium"><div class="flex size-full items-center justify-center rounded-full hover:bg-white/10">28</div></button>
-<button class="h-10 w-full text-white text-sm font-medium"><div class="flex size-full items-center justify-center rounded-full hover:bg-white/10">29</div></button>
-<button class="h-10 w-full text-white text-sm font-medium"><div class="flex size-full items-center justify-center rounded-full hover:bg-white/10">30</div></button>
-<button class="h-10 w-full text-white text-sm font-medium"><div class="flex size-full items-center justify-center rounded-full hover:bg-white/10">31</div></button>
-</div>
-</div>
-</div>
-</div>
-</div>
-</main>
-</div>
-</body></html>
+
+<script>
+const API   = 'http://localhost:5000/api';
+const token = localStorage.getItem('token');
+
+// ── Sidebar user info + Dashboard link ───────
+try {
+  const u = JSON.parse(localStorage.getItem('user') || '{}');
+  document.getElementById('sidebar-name').textContent  = u.name  || 'Admin';
+  document.getElementById('sidebar-email').textContent = u.email || 'admin@wam.app';
+
+  // Dashboard link based on role
+  const dashMap = {
+    admin: 'Admin_dashboard.html',
+    regular_user: 'regular_user_dashboard.html',
+    business_owner: 'business_owner_dashboard.html',
+    authority_representative: 'authority_representative_dashboard.html'
+  };
+  document.getElementById('nav-dashboard').href = dashMap[u.role] || 'Admin_dashboard.html';
+} catch(e){}
+
+// ── Load KPIs ────────────────────────────────
+async function loadStats() {
+  try {
+    const res  = await fetch(`${API}/admin/stats`, { headers:{ Authorization:`Bearer ${token}` } });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('kpi-users').textContent     = data.data.users?.toLocaleString()     || '—';
+      document.getElementById('kpi-reports').textContent   = data.data.reviews?.toLocaleString()   || '—';
+      document.getElementById('kpi-locations').textContent = data.data.locations?.toLocaleString() || '—';
+    }
+  } catch(e) { console.log('Stats error', e); }
+}
+loadStats();
+
+// ══════════════════════════════════════════════
+// HEATMAP  (Leaflet + leaflet.heat)
+// ══════════════════════════════════════════════
+let map, heatLayer;
+
+const allPoints = [
+  // [lat, lng, intensity]  — sample accessibility hotspots
+  [30.044,31.235,1.0],[30.046,31.238,0.8],[30.041,31.232,0.9],
+  [30.048,31.241,0.7],[30.050,31.245,0.6],[30.043,31.229,0.5],
+  [30.055,31.250,0.8],[30.052,31.243,0.4],[30.038,31.228,0.7],
+  [30.060,31.255,0.3],[30.035,31.220,0.9],[30.065,31.260,0.6],
+  [30.070,31.265,0.4],[30.042,31.240,0.8],[30.058,31.248,0.5],
+];
+const typePoints = {
+  ramp:     allPoints.filter((_,i) => i % 3 === 0),
+  restroom: allPoints.filter((_,i) => i % 3 === 1),
+  parking:  allPoints.filter((_,i) => i % 3 === 2),
+};
+
+function initMap() {
+  map = L.map('heatmap', { zoomControl:true, attributionControl:false }).setView([30.05, 31.24], 12);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom:19 }).addTo(map);
+  heatLayer = L.heatLayer(allPoints, { radius:35, blur:25, maxZoom:13,
+    gradient:{ 0.2:'#1e40af', 0.5:'#eab308', 1.0:'#22c55e' }
+  }).addTo(map);
+}
+
+function updateHeatmap() {
+  const f = document.getElementById('heatmap-filter').value;
+  const pts = f === 'all' ? allPoints : (typePoints[f] || allPoints);
+  heatLayer.setLatLngs(pts);
+}
+
+// Init map after DOM ready
+setTimeout(initMap, 100);
+
+// ══════════════════════════════════════════════
+// CALENDAR
+// ══════════════════════════════════════════════
+const today    = new Date();
+let calYear    = today.getFullYear();
+let calMonth   = today.getMonth(); // 0-based
+let selectedDay = null;
+
+const MONTHS = ['January','February','March','April','May','June',
+                'July','August','September','October','November','December'];
+
+// Simulated daily report data (in real app - fetch from API)
+function getDayData(y, m, d) {
+  // Seed random but deterministic per date
+  const seed = y * 10000 + m * 100 + d;
+  const rng  = (n) => ((seed * 9301 + n * 49297) % 233280) / 233280;
+  const hasData = rng(1) > 0.3; // 70% of days have data
+  if (!hasData) return null;
+  return {
+    reviews:   Math.floor(rng(2) * 50 + 1),
+    locations: Math.floor(rng(3) * 20 + 1),
+    users:     Math.floor(rng(4) * 100 + 5),
+    avgRating: (rng(5) * 2 + 3).toFixed(1)
+  };
+}
+
+function renderCalendar() {
+  document.getElementById('cal-title').textContent = `${MONTHS[calMonth]} ${calYear}`;
+  const grid = document.getElementById('cal-days');
+  grid.innerHTML = '';
+
+  const firstDay  = new Date(calYear, calMonth, 1).getDay(); // 0=Sun
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+
+  // Empty cells before 1st
+  for (let i = 0; i < firstDay; i++) {
+    const el = document.createElement('div');
+    el.className = 'cal-day empty';
+    grid.appendChild(el);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const el  = document.createElement('div');
+    const data = getDayData(calYear, calMonth, d);
+    const isToday = d === today.getDate() && calMonth === today.getMonth() && calYear === today.getFullYear();
+    const isSel   = d === selectedDay && calMonth === today.getMonth() && calYear === today.getFullYear();
+
+    el.className = 'cal-day' +
+      (isToday ? ' today' : '') +
+      (isSel   ? ' selected' : '') +
+      (data && !isToday ? ' has-data' : '');
+    el.textContent = d;
+    el.addEventListener('click', () => selectDay(d));
+    grid.appendChild(el);
+  }
+}
+
+function selectDay(d) {
+  selectedDay = d;
+  renderCalendar();
+  const data = getDayData(calYear, calMonth, d);
+  const panel = document.getElementById('day-panel');
+  const dateStr = `${MONTHS[calMonth]} ${d}, ${calYear}`;
+
+  if (!data) {
+    panel.innerHTML = `
+      <p class="text-white text-sm font-semibold mb-1">${dateStr}</p>
+      <p class="text-white/40 text-xs">No activity recorded on this day.</p>`;
+    return;
+  }
+
+  panel.innerHTML = `
+    <p class="text-white text-sm font-semibold mb-3">${dateStr}</p>
+    <div class="grid grid-cols-2 gap-2">
+      <div class="bg-white/5 rounded-lg p-2 text-center">
+        <p class="text-primary text-lg font-bold">${data.reviews}</p>
+        <p class="text-white/50 text-xs">Reviews</p>
+      </div>
+      <div class="bg-white/5 rounded-lg p-2 text-center">
+        <p class="text-primary text-lg font-bold">${data.locations}</p>
+        <p class="text-white/50 text-xs">Locations</p>
+      </div>
+      <div class="bg-white/5 rounded-lg p-2 text-center">
+        <p class="text-primary text-lg font-bold">${data.users}</p>
+        <p class="text-white/50 text-xs">Active Users</p>
+      </div>
+      <div class="bg-white/5 rounded-lg p-2 text-center">
+        <p class="text-yellow-400 text-lg font-bold">⭐ ${data.avgRating}</p>
+        <p class="text-white/50 text-xs">Avg Rating</p>
+      </div>
+    </div>`;
+}
+
+function prevMonth() {
+  if (calMonth === 0) { calMonth = 11; calYear--; } else calMonth--;
+  selectedDay = null;
+  renderCalendar();
+  document.getElementById('day-panel').innerHTML = '<p class="text-white/40 text-xs text-center mt-6">Click a day to see data</p>';
+}
+function nextMonth() {
+  if (calMonth === 11) { calMonth = 0; calYear++; } else calMonth++;
+  selectedDay = null;
+  renderCalendar();
+  document.getElementById('day-panel').innerHTML = '<p class="text-white/40 text-xs text-center mt-6">Click a day to see data</p>';
+}
+
+renderCalendar();
+
+// ── Export functions ─────────────────────────
+function exportCSV() {
+  const rows = [['Date','Reviews','Locations','Active Users','Avg Rating']];
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  for (let d = 1; d <= daysInMonth; d++) {
+    const data = getDayData(calYear, calMonth, d);
+    if (data) rows.push([`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`, data.reviews, data.locations, data.users, data.avgRating]);
+  }
+  const csv = rows.map(r => r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = `report_${calYear}_${calMonth+1}.csv`;
+  a.click();
+}
+
+function exportPDF() {
+  alert('PDF export requires a server-side PDF library.\nFor now, use Ctrl+P to print this page.');
+}
+</script>
+</body>
+</html>

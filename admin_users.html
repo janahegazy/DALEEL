@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>User Management - W-A-M</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: { "primary": "#0667f9", "background-dark": "#0f1723" },
+        fontFamily: { "display": ["Space Grotesk", "sans-serif"] },
+        borderRadius: { "DEFAULT": "0.75rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" },
+      },
+    },
+  }
+</script>
+<style>
+  .aurora-gradient {
+    background: radial-gradient(at 20% 80%, hsla(212,89%,55%,0.2) 0px, transparent 50%),
+                radial-gradient(at 80% 20%, hsla(288,89%,55%,0.2) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, hsla(180,89%,55%,0.15) 0px, transparent 50%);
+  }
+  .glassmorphism {
+    background: rgba(15,23,35,0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .role-badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+  .badge-admin    { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+  .badge-business { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+  .badge-authority{ background: rgba(139,92,246,0.15); color: #a78bfa; border: 1px solid rgba(139,92,246,0.3); }
+  .badge-regular  { background: rgba(6,103,249,0.15); color: #60a5fa; border: 1px solid rgba(6,103,249,0.3); }
+  .status-active  { display:inline-flex;align-items:center;gap:4px;color:#4ade80;font-size:.75rem; }
+  .status-suspended{ display:inline-flex;align-items:center;gap:4px;color:#f87171;font-size:.75rem; }
+
+  /* Modal */
+  #edit-modal {
+    position:fixed;inset:0;z-index:100;
+    background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);
+    display:flex;align-items:center;justify-content:center;padding:1rem;
+    opacity:0;pointer-events:none;transition:opacity .2s;
+  }
+  #edit-modal.show{opacity:1;pointer-events:all;}
+  #edit-modal .modal-box{
+    background:#111827;border:1px solid rgba(255,255,255,0.12);
+    border-radius:1.25rem;padding:2rem;width:100%;max-width:440px;
+    transform:scale(.95);transition:transform .2s;
+  }
+  #edit-modal.show .modal-box{transform:scale(1);}
+
+  tr:hover td { background: rgba(6,103,249,0.05); }
+</style>
+</head>
+<body class="bg-background-dark font-display text-white">
+<div class="relative flex min-h-screen w-full">
+  <div class="absolute inset-0 aurora-gradient z-0"></div>
+
+  <!-- Sidebar -->
+  <aside class="relative z-10 w-64 flex-shrink-0 bg-background-dark/50 p-4">
+    <div class="flex h-full flex-col justify-between">
+      <div class="flex flex-col gap-8">
+        <div class="flex items-center gap-3 px-2">
+          <span class="material-symbols-outlined text-primary" style="font-size:32px">wheelchair_pickup</span>
+          <h1 class="text-white text-xl font-bold">W-A-M</h1>
+        </div>
+        <nav class="flex flex-col gap-2">
+          <a href="Admin_dashboard.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-white/70 hover:bg-primary/20 hover:text-white transition-colors">
+            <span class="material-symbols-outlined">dashboard</span><p class="text-sm font-medium">Dashboard</p>
+          </a>
+          <a href="report_management.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-white/70 hover:bg-primary/20 hover:text-white transition-colors">
+            <span class="material-symbols-outlined">assessment</span><p class="text-sm font-medium">Reports</p>
+          </a>
+          <a href="admin_users.html" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/20 text-white">
+            <span class="material-symbols-outlined">group</span><p class="text-sm font-medium">Users</p>
+          </a>
+          <a href="admin_locations.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-white/70 hover:bg-primary/20 hover:text-white transition-colors">
+            <span class="material-symbols-outlined">place</span><p class="text-sm font-medium">Locations</p>
+          </a>
+          <a href="admin_settings.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-white/70 hover:bg-primary/20 hover:text-white transition-colors">
+            <span class="material-symbols-outlined">settings</span><p class="text-sm font-medium">Settings</p>
+          </a>
+        </nav>
+      </div>
+      <div class="flex flex-col gap-4">
+        <div class="border-t border-white/10 my-2"></div>
+        <div class="flex items-center gap-3 px-2">
+          <div class="w-10 h-10 rounded-full bg-primary/30 flex items-center justify-center">
+            <span class="material-symbols-outlined text-primary">person</span>
+          </div>
+          <div class="flex flex-col">
+            <p class="text-white text-sm font-medium" id="sidebar-name">Admin</p>
+            <p class="text-white/60 text-xs" id="sidebar-email">admin@wam.app</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="flex-1 p-8 overflow-y-auto relative z-10">
+    <div class="flex flex-col gap-8">
+
+      <!-- Header -->
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p class="text-white text-3xl font-bold tracking-tight">User Management</p>
+          <p class="text-white/60 text-base mt-1">Manage all registered users, roles, and access.</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-white/50 text-sm" id="user-count">Loading...</span>
+          <button onclick="exportCSV()" class="flex items-center gap-2 h-10 px-4 rounded-lg bg-white/10 text-white text-sm font-bold hover:bg-white/20 transition-colors">
+            <span class="material-symbols-outlined text-base">download</span> Export CSV
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="glassmorphism rounded-xl p-4 flex flex-wrap gap-3 items-center">
+        <div class="flex items-center gap-2 flex-1 min-w-[200px] bg-white/5 rounded-lg px-3 h-10 border border-white/10">
+          <span class="material-symbols-outlined text-white/40" style="font-size:18px">search</span>
+          <input id="search-input" type="text" placeholder="Search by name or email..."
+            class="bg-transparent text-white text-sm flex-1 outline-none placeholder:text-white/30"
+            oninput="filterUsers()"/>
+        </div>
+        <select id="role-filter" onchange="filterUsers()"
+          class="h-10 px-3 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:ring-2 focus:ring-primary">
+          <option value="">All Roles</option>
+          <option value="admin">Admin</option>
+          <option value="business_owner">Business Owner</option>
+          <option value="authority_representative">Authority Rep.</option>
+          <option value="regular_user">Regular User</option>
+        </select>
+        <select id="status-filter" onchange="filterUsers()"
+          class="h-10 px-3 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:ring-2 focus:ring-primary">
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="suspended">Suspended</option>
+        </select>
+      </div>
+
+      <!-- Table -->
+      <div class="glassmorphism rounded-xl overflow-hidden">
+        <div id="loading-state" class="flex items-center justify-center py-16 gap-3">
+          <span class="material-symbols-outlined text-primary animate-spin" style="font-size:28px">autorenew</span>
+          <p class="text-white/60">Loading users...</p>
+        </div>
+        <div id="error-state" class="hidden flex-col items-center justify-center py-16 gap-3 text-center">
+          <span class="material-symbols-outlined text-red-400" style="font-size:40px">error</span>
+          <p class="text-white/60 text-sm" id="error-msg">Failed to load users.</p>
+          <button onclick="loadUsers()" class="mt-2 px-4 h-9 rounded-lg bg-primary/20 text-primary text-sm font-semibold hover:bg-primary/30 transition-colors">Retry</button>
+        </div>
+        <table id="users-table" class="hidden w-full text-left">
+          <thead>
+            <tr class="border-b border-white/10">
+              <th class="px-6 py-4 text-white/50 text-xs font-semibold uppercase tracking-wider">User</th>
+              <th class="px-6 py-4 text-white/50 text-xs font-semibold uppercase tracking-wider">Role</th>
+              <th class="px-6 py-4 text-white/50 text-xs font-semibold uppercase tracking-wider">Status</th>
+              <th class="px-6 py-4 text-white/50 text-xs font-semibold uppercase tracking-wider">Joined</th>
+              <th class="px-6 py-4 text-white/50 text-xs font-semibold uppercase tracking-wider text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="users-tbody"></tbody>
+        </table>
+        <div id="empty-state" class="hidden flex flex-col items-center justify-center py-16 gap-3">
+          <span class="material-symbols-outlined text-white/20" style="font-size:48px">group_off</span>
+          <p class="text-white/40">No users found</p>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div id="pagination" class="hidden flex items-center justify-between">
+        <p class="text-white/50 text-sm" id="pagination-info"></p>
+        <div class="flex gap-2">
+          <button id="prev-btn" onclick="changePage(-1)" class="h-9 px-4 rounded-lg bg-white/10 text-white text-sm font-semibold hover:bg-white/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">← Prev</button>
+          <button id="next-btn" onclick="changePage(1)"  class="h-9 px-4 rounded-lg bg-white/10 text-white text-sm font-semibold hover:bg-white/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">Next →</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Edit Modal -->
+<div id="edit-modal">
+  <div class="modal-box">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-white text-lg font-bold">Edit User</h2>
+      <button onclick="closeModal()" class="text-white/50 hover:text-white transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div id="modal-user-info" class="flex items-center gap-3 mb-6 p-3 rounded-xl bg-white/5"></div>
+    <div class="flex flex-col gap-4">
+      <div class="flex flex-col gap-1.5">
+        <label class="text-white/70 text-sm font-medium">Role</label>
+        <select id="modal-role" class="h-11 px-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:ring-2 focus:ring-primary">
+          <option value="regular_user">Regular User</option>
+          <option value="business_owner">Business Owner</option>
+          <option value="authority_representative">Authority Representative</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <label class="text-white/70 text-sm font-medium">Account Status</label>
+        <select id="modal-suspended" class="h-11 px-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:ring-2 focus:ring-primary">
+          <option value="0">Active</option>
+          <option value="1">Suspended</option>
+        </select>
+      </div>
+    </div>
+    <div id="modal-error" class="hidden mt-4 bg-red-500/20 border border-red-500/40 text-red-300 rounded-xl px-4 py-3 text-sm text-center"></div>
+    <div class="flex gap-3 mt-6">
+      <button onclick="closeModal()" class="flex-1 h-11 rounded-xl border border-white/15 text-white/70 text-sm font-semibold hover:bg-white/10 transition-colors">Cancel</button>
+      <button onclick="saveUser()" id="save-btn" class="flex-1 h-11 rounded-xl bg-primary text-white text-sm font-bold hover:bg-blue-600 transition-colors flex items-center justify-center gap-2">
+        <span id="save-btn-text">Save Changes</span>
+        <span id="save-spinner" class="hidden material-symbols-outlined" style="font-size:16px;animation:spin 1s linear infinite">autorenew</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}</style>
+
+<script>
+const API = 'http://localhost:5000/api';
+const token = localStorage.getItem('token');
+const PAGE_SIZE = 10;
+let allUsers = [], filteredUsers = [], currentPage = 1, editingUserId = null;
+
+// Load sidebar info
+try {
+  const u = JSON.parse(localStorage.getItem('user') || '{}');
+  document.getElementById('sidebar-name').textContent  = u.name  || 'Admin';
+  document.getElementById('sidebar-email').textContent = u.email || 'admin@wam.app';
+} catch(e){}
+
+async function loadUsers() {
+  document.getElementById('loading-state').classList.remove('hidden');
+  document.getElementById('loading-state').style.display = 'flex';
+  document.getElementById('error-state').classList.add('hidden');
+  document.getElementById('users-table').classList.add('hidden');
+  document.getElementById('pagination').classList.add('hidden');
+
+  try {
+    const res  = await fetch(`${API}/admin/users`, { headers: { Authorization: `Bearer ${token}` } });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Failed to fetch users');
+    allUsers = data.data || data.users || [];
+    filteredUsers = [...allUsers];
+    document.getElementById('user-count').textContent = `${allUsers.length} total users`;
+    renderTable();
+  } catch (err) {
+    document.getElementById('loading-state').style.display = 'none';
+    const errState = document.getElementById('error-state');
+    errState.classList.remove('hidden');
+    errState.style.display = 'flex';
+    document.getElementById('error-msg').textContent = err.message;
+  }
+}
+
+function filterUsers() {
+  const q    = document.getElementById('search-input').value.toLowerCase();
+  const role = document.getElementById('role-filter').value;
+  const stat = document.getElementById('status-filter').value;
+  filteredUsers = allUsers.filter(u => {
+    const matchQ    = !q    || u.name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q);
+    const matchRole = !role || u.role === role;
+    const matchStat = !stat || (stat === 'suspended' ? u.suspended : !u.suspended);
+    return matchQ && matchRole && matchStat;
+  });
+  currentPage = 1;
+  renderTable();
+}
+
+function renderTable() {
+  document.getElementById('loading-state').style.display = 'none';
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const page  = filteredUsers.slice(start, start + PAGE_SIZE);
+
+  const tbody = document.getElementById('users-tbody');
+  tbody.innerHTML = '';
+
+  if (!filteredUsers.length) {
+    document.getElementById('users-table').classList.add('hidden');
+    document.getElementById('empty-state').classList.remove('hidden');
+    document.getElementById('empty-state').style.display = 'flex';
+    document.getElementById('pagination').classList.add('hidden');
+    return;
+  }
+
+  document.getElementById('empty-state').style.display = 'none';
+  document.getElementById('users-table').classList.remove('hidden');
+  document.getElementById('pagination').classList.remove('hidden');
+
+  page.forEach(u => {
+    const roleBadge = {
+      admin:'badge-admin', business_owner:'badge-business',
+      authority_representative:'badge-authority', regular_user:'badge-regular'
+    }[u.role] || 'badge-regular';
+    const roleLabel = {
+      admin:'Admin', business_owner:'Business Owner',
+      authority_representative:'Authority Rep.', regular_user:'Regular User'
+    }[u.role] || u.role;
+    const date = u.created_at ? new Date(u.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+
+    const tr = document.createElement('tr');
+    tr.className = 'border-b border-white/5 transition-colors';
+    tr.innerHTML = `
+      <td class="px-6 py-4">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-primary" style="font-size:18px">person</span>
+          </div>
+          <div>
+            <p class="text-white text-sm font-semibold">${escHtml(u.name || '—')}</p>
+            <p class="text-white/50 text-xs">${escHtml(u.email || '—')}</p>
+          </div>
+        </div>
+      </td>
+      <td class="px-6 py-4"><span class="role-badge ${roleBadge}">${roleLabel}</span></td>
+      <td class="px-6 py-4">
+        ${u.suspended
+          ? `<span class="status-suspended"><span class="w-1.5 h-1.5 rounded-full bg-red-400 inline-block"></span>Suspended</span>`
+          : `<span class="status-active"><span class="w-1.5 h-1.5 rounded-full bg-green-400 inline-block"></span>Active</span>`}
+      </td>
+      <td class="px-6 py-4 text-white/50 text-sm">${date}</td>
+      <td class="px-6 py-4 text-right">
+        <div class="flex items-center justify-end gap-1">
+          <button onclick="openEditModal(${u.id})" title="Edit"
+            class="w-8 h-8 rounded-lg flex items-center justify-center text-white/50 hover:bg-primary/20 hover:text-primary transition-colors">
+            <span class="material-symbols-outlined" style="font-size:18px">edit</span>
+          </button>
+          <button onclick="toggleSuspend(${u.id},${u.suspended?1:0})" title="${u.suspended?'Unsuspend':'Suspend'}"
+            class="w-8 h-8 rounded-lg flex items-center justify-center text-white/50 hover:bg-${u.suspended?'green':'red'}-500/20 hover:text-${u.suspended?'green':'red'}-400 transition-colors">
+            <span class="material-symbols-outlined" style="font-size:18px">${u.suspended?'lock_open':'block'}</span>
+          </button>
+        </div>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+
+  // Pagination
+  const total = filteredUsers.length;
+  const pages = Math.ceil(total / PAGE_SIZE);
+  document.getElementById('pagination-info').textContent =
+    `Showing ${start+1}–${Math.min(start+PAGE_SIZE, total)} of ${total} users`;
+  document.getElementById('prev-btn').disabled = currentPage === 1;
+  document.getElementById('next-btn').disabled = currentPage >= pages;
+}
+
+function changePage(dir) { currentPage += dir; renderTable(); }
+
+function openEditModal(id) {
+  const u = allUsers.find(x => x.id === id);
+  if (!u) return;
+  editingUserId = id;
+  document.getElementById('modal-user-info').innerHTML = `
+    <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+      <span class="material-symbols-outlined text-primary">person</span>
+    </div>
+    <div>
+      <p class="text-white font-semibold text-sm">${escHtml(u.name||'—')}</p>
+      <p class="text-white/50 text-xs">${escHtml(u.email||'—')}</p>
+    </div>`;
+  document.getElementById('modal-role').value      = u.role || 'regular_user';
+  document.getElementById('modal-suspended').value = u.suspended ? '1' : '0';
+  document.getElementById('modal-error').classList.add('hidden');
+  document.getElementById('edit-modal').classList.add('show');
+}
+function closeModal() { document.getElementById('edit-modal').classList.remove('show'); editingUserId=null; }
+
+async function saveUser() {
+  if (!editingUserId) return;
+  const role      = document.getElementById('modal-role').value;
+  const suspended = document.getElementById('modal-suspended').value === '1';
+  const btn = document.getElementById('save-btn');
+  const txt = document.getElementById('save-btn-text');
+  const spn = document.getElementById('save-spinner');
+  txt.textContent = 'Saving...'; spn.classList.remove('hidden'); btn.disabled = true;
+  try {
+    const [r1,r2] = await Promise.all([
+      fetch(`${API}/admin/users/${editingUserId}/role`,     { method:'PUT', headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`}, body:JSON.stringify({role}) }),
+      fetch(`${API}/admin/users/${editingUserId}/suspend`,  { method:'PUT', headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`}, body:JSON.stringify({suspended}) })
+    ]);
+    if (!r1.ok || !r2.ok) throw new Error('Update failed');
+    const idx = allUsers.findIndex(x => x.id === editingUserId);
+    if (idx !== -1) { allUsers[idx].role = role; allUsers[idx].suspended = suspended; }
+    filterUsers(); closeModal();
+  } catch(err) {
+    const errEl = document.getElementById('modal-error');
+    errEl.textContent = err.message; errEl.classList.remove('hidden');
+  } finally { txt.textContent = 'Save Changes'; spn.classList.add('hidden'); btn.disabled = false; }
+}
+
+async function toggleSuspend(id, current) {
+  const suspended = !current;
+  try {
+    const r = await fetch(`${API}/admin/users/${id}/suspend`, {
+      method:'PUT', headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},
+      body: JSON.stringify({suspended})
+    });
+    if (!r.ok) throw new Error('Failed');
+    const idx = allUsers.findIndex(x => x.id === id);
+    if (idx !== -1) allUsers[idx].suspended = suspended;
+    filterUsers();
+  } catch(e) { alert('Action failed: ' + e.message); }
+}
+
+function exportCSV() {
+  const rows = [['ID','Name','Email','Role','Status','Joined']];
+  filteredUsers.forEach(u => rows.push([u.id, u.name, u.email, u.role, u.suspended?'Suspended':'Active', u.created_at||'']));
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = `users_${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+}
+
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+document.addEventListener('keydown', e => { if (e.key==='Escape') closeModal(); });
+document.getElementById('edit-modal').addEventListener('click', e => { if(e.target===document.getElementById('edit-modal')) closeModal(); });
+
+loadUsers();
+</script>
+</body>
+</html>

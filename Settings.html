@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Settings - W-A-M Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<style>
+  .aurora-gradient{background:radial-gradient(at 20% 80%,hsla(212,89%,55%,.2) 0,transparent 50%),radial-gradient(at 80% 20%,hsla(288,89%,55%,.2) 0,transparent 50%);}
+  .glassmorphism{background:rgba(15,23,35,.6);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.1);}
+  .toggle{position:relative;display:inline-flex;height:28px;width:52px;cursor:pointer;align-items:center;border-radius:9999px;border:none;background:#374151;padding:2px;transition:background .2s;}
+  .toggle.on{background:#0667f9;}
+  .toggle-knob{width:24px;height:24px;border-radius:50%;background:white;transition:transform .2s;}
+  .toggle.on .toggle-knob{transform:translateX(24px);}
+  .section-title{display:flex;align-items:center;gap:8px;margin-bottom:1.25rem;}
+  @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+  .spin{animation:spin 1s linear infinite;}
+  input[type=range]::-webkit-slider-thumb{background:#0667f9;}
+</style>
+<script>tailwind.config={darkMode:"class",theme:{extend:{colors:{"primary":"#0667f9","background-dark":"#0f1723"},fontFamily:{"display":["Space Grotesk","sans-serif"]},borderRadius:{"DEFAULT":"0.75rem","full":"9999px"}}}}</script>
+</head>
+<body class="bg-background-dark font-display text-white">
+<div class="relative flex min-h-screen w-full">
+  <div class="absolute inset-0 aurora-gradient z-0"></div>
+
+  <!-- Sidebar -->
+  <aside class="relative z-10 w-64 flex-shrink-0 bg-background-dark/50 p-4">
+    <div class="flex h-full flex-col justify-between">
+      <div class="flex flex-col gap-8">
+        <div class="flex items-center gap-3 px-2">
+          <span class="material-symbols-outlined text-primary" style="font-size:32px">wheelchair_pickup</span>
+          <h1 class="text-xl font-bold">W-A-M</h1>
+        </div>
+        <nav class="flex flex-col gap-2">
+          <a href="#" id="nav-dashboard" class="flex items-center gap-3 px-3 py-2 rounded-lg text-white/70 hover:bg-primary/20 hover:text-white transition-colors">
+            <span class="material-symbols-outlined">dashboard</span><p class="text-sm font-medium">Dashboard</p>
+          </a>
+          <a href="report_management.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-white/70 hover:bg-primary/20 hover:text-white transition-colors">
+            <span class="material-symbols-outlined">assessment</span><p class="text-sm font-medium">Reports</p>
+          </a>
+          <a href="admin_users.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-white/70 hover:bg-primary/20 hover:text-white transition-colors">
+            <span class="material-symbols-outlined">group</span><p class="text-sm font-medium">Users</p>
+          </a>
+          <a href="admin_locations.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-white/70 hover:bg-primary/20 hover:text-white transition-colors">
+            <span class="material-symbols-outlined">place</span><p class="text-sm font-medium">Locations</p>
+          </a>
+          <a href="admin_settings.html" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/20 text-white">
+            <span class="material-symbols-outlined">settings</span><p class="text-sm font-medium">Settings</p>
+          </a>
+        </nav>
+      </div>
+      <div class="flex flex-col gap-4">
+        <div class="border-t border-white/10 my-2"></div>
+        <div class="flex items-center gap-3 px-2">
+          <div class="w-10 h-10 rounded-full bg-primary/30 flex items-center justify-center">
+            <span class="material-symbols-outlined text-primary">person</span>
+          </div>
+          <div>
+            <p class="text-sm font-medium" id="sidebar-name">Admin</p>
+            <p class="text-white/60 text-xs" id="sidebar-email">admin@wam.app</p>
+          </div>
+        </div>
+        <button onclick="logout()" class="w-full flex items-center justify-center gap-2 h-10 px-4 rounded-lg bg-red-500/20 text-red-400 text-sm font-bold hover:bg-red-500/30 transition-colors">
+          <span class="material-symbols-outlined text-base">logout</span> Sign Out
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="flex-1 p-8 overflow-y-auto relative z-10">
+    <div class="max-w-3xl mx-auto flex flex-col gap-8">
+
+      <div>
+        <p class="text-3xl font-bold tracking-tight">System Settings</p>
+        <p class="text-white/60 text-base mt-1">Configure platform preferences and administrative controls.</p>
+      </div>
+
+      <!-- ── General Settings ── -->
+      <div class="glassmorphism rounded-xl p-6">
+        <div class="section-title">
+          <span class="material-symbols-outlined text-primary">tune</span>
+          <h2 class="text-lg font-bold">General</h2>
+        </div>
+        <div class="flex flex-col gap-5">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-white text-sm font-medium">Maintenance Mode</p>
+              <p class="text-white/50 text-xs mt-0.5">Temporarily disable public access to the platform.</p>
+            </div>
+            <button class="toggle" id="toggle-maintenance" onclick="toggleSwitch(this)">
+              <div class="toggle-knob"></div>
+            </button>
+          </div>
+          <div class="border-t border-white/10"></div>
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-white text-sm font-medium">User Registration</p>
+              <p class="text-white/50 text-xs mt-0.5">Allow new users to sign up.</p>
+            </div>
+            <button class="toggle on" id="toggle-registration" onclick="toggleSwitch(this)">
+              <div class="toggle-knob"></div>
+            </button>
+          </div>
+          <div class="border-t border-white/10"></div>
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-white text-sm font-medium">Auto-approve Reviews</p>
+              <p class="text-white/50 text-xs mt-0.5">Skip moderation queue for new reviews.</p>
+            </div>
+            <button class="toggle" id="toggle-autoapprove" onclick="toggleSwitch(this)">
+              <div class="toggle-knob"></div>
+            </button>
+          </div>
+          <div class="border-t border-white/10"></div>
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-white text-sm font-medium">Email Notifications</p>
+              <p class="text-white/50 text-xs mt-0.5">Send system emails to users.</p>
+            </div>
+            <button class="toggle on" id="toggle-email" onclick="toggleSwitch(this)">
+              <div class="toggle-knob"></div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Content Limits ── -->
+      <div class="glassmorphism rounded-xl p-6">
+        <div class="section-title">
+          <span class="material-symbols-outlined text-primary">data_usage</span>
+          <h2 class="text-lg font-bold">Content Limits</h2>
+        </div>
+        <div class="flex flex-col gap-5">
+          <div class="flex flex-col gap-2">
+            <div class="flex justify-between">
+              <label class="text-white text-sm font-medium">Max Photos per Review</label>
+              <span id="photos-val" class="text-primary text-sm font-bold">3</span>
+            </div>
+            <input type="range" min="1" max="10" value="3" class="w-full h-2 bg-white/20 rounded-full appearance-none cursor-pointer accent-primary"
+              oninput="document.getElementById('photos-val').textContent=this.value"/>
+          </div>
+          <div class="border-t border-white/10"></div>
+          <div class="flex flex-col gap-2">
+            <div class="flex justify-between">
+              <label class="text-white text-sm font-medium">Max File Size (MB)</label>
+              <span id="filesize-val" class="text-primary text-sm font-bold">5</span>
+            </div>
+            <input type="range" min="1" max="20" value="5" class="w-full h-2 bg-white/20 rounded-full appearance-none cursor-pointer accent-primary"
+              oninput="document.getElementById('filesize-val').textContent=this.value"/>
+          </div>
+          <div class="border-t border-white/10"></div>
+          <div class="flex flex-col gap-2">
+            <label class="text-white text-sm font-medium">Minimum Review Length (chars)</label>
+            <input type="number" value="10" min="5" max="500"
+              class="h-11 px-4 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:ring-2 focus:ring-primary outline-none w-40"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Security ── -->
+      <div class="glassmorphism rounded-xl p-6">
+        <div class="section-title">
+          <span class="material-symbols-outlined text-primary">security</span>
+          <h2 class="text-lg font-bold">Security</h2>
+        </div>
+        <div class="flex flex-col gap-5">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-white text-sm font-medium">Rate Limiting</p>
+              <p class="text-white/50 text-xs mt-0.5">Limit API requests per user (200/15min).</p>
+            </div>
+            <button class="toggle on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></button>
+          </div>
+          <div class="border-t border-white/10"></div>
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-white text-sm font-medium">Two-Factor Authentication</p>
+              <p class="text-white/50 text-xs mt-0.5">Require 2FA for admin accounts.</p>
+            </div>
+            <button class="toggle" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></button>
+          </div>
+          <div class="border-t border-white/10"></div>
+          <div class="flex flex-col gap-2">
+            <label class="text-white text-sm font-medium">JWT Token Expiry</label>
+            <select class="h-11 px-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:ring-2 focus:ring-primary w-48">
+              <option>1 day</option>
+              <option selected>7 days</option>
+              <option>30 days</option>
+              <option>90 days</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Database Backup ── -->
+      <div class="glassmorphism rounded-xl p-6">
+        <div class="section-title">
+          <span class="material-symbols-outlined text-primary">cloud_sync</span>
+          <h2 class="text-lg font-bold">Database Backup</h2>
+        </div>
+        <div class="flex flex-col gap-4">
+          <div class="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10">
+            <div>
+              <p class="text-white text-sm font-medium">Automatic Daily Backup</p>
+              <p class="text-white/50 text-xs mt-0.5">Last backup: Today at 2:30 AM</p>
+            </div>
+            <span class="flex items-center gap-1 text-green-400 text-xs font-semibold">
+              <span class="material-symbols-outlined" style="font-size:16px">check_circle</span>Active
+            </span>
+          </div>
+          <div class="flex gap-3">
+            <button onclick="createBackup()" id="backup-btn"
+              class="flex items-center gap-2 h-10 px-4 rounded-lg bg-primary text-white text-sm font-bold hover:bg-blue-600 transition-colors">
+              <span class="material-symbols-outlined text-base">save</span>
+              <span id="backup-btn-text">Create Manual Backup</span>
+              <span id="backup-spinner" class="hidden material-symbols-outlined spin" style="font-size:16px">autorenew</span>
+            </button>
+            <a href="backup_system_management.html"
+              class="flex items-center gap-2 h-10 px-4 rounded-lg bg-white/10 text-white text-sm font-bold hover:bg-white/20 transition-colors">
+              <span class="material-symbols-outlined text-base">history</span> View History
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Danger Zone ── -->
+      <div class="rounded-xl p-6 border border-red-500/30 bg-red-500/5">
+        <div class="section-title">
+          <span class="material-symbols-outlined text-red-400">warning</span>
+          <h2 class="text-lg font-bold text-red-400">Danger Zone</h2>
+        </div>
+        <div class="flex flex-col gap-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-white text-sm font-medium">Clear All Pending Reviews</p>
+              <p class="text-white/50 text-xs mt-0.5">Permanently delete all unmoderated reviews.</p>
+            </div>
+            <button onclick="dangerAction('Clear pending reviews')" class="h-10 px-4 rounded-lg bg-red-500/20 text-red-400 text-sm font-bold hover:bg-red-500/30 transition-colors">
+              Clear
+            </button>
+          </div>
+          <div class="border-t border-red-500/20"></div>
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-white text-sm font-medium">Reset Platform Settings</p>
+              <p class="text-white/50 text-xs mt-0.5">Restore all settings to factory defaults.</p>
+            </div>
+            <button onclick="dangerAction('Reset settings')" class="h-10 px-4 rounded-lg bg-red-500/20 text-red-400 text-sm font-bold hover:bg-red-500/30 transition-colors">
+              Reset
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Save button -->
+      <div class="flex justify-end gap-3 pb-8">
+        <button onclick="resetSettings()" class="h-11 px-6 rounded-xl border border-white/15 text-white/70 text-sm font-semibold hover:bg-white/10 transition-colors">
+          Discard Changes
+        </button>
+        <button onclick="saveSettings()" id="save-btn"
+          class="h-11 px-8 rounded-xl bg-primary text-white text-sm font-bold hover:bg-blue-600 transition-colors flex items-center gap-2">
+          <span id="save-text">Save Settings</span>
+          <span id="save-spinner" class="hidden material-symbols-outlined spin" style="font-size:16px">autorenew</span>
+        </button>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- Success toast -->
+<div id="toast" class="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3 rounded-xl bg-green-500 text-white text-sm font-semibold shadow-xl opacity-0 pointer-events-none transition-opacity duration-300">
+  <span class="material-symbols-outlined" style="font-size:20px">check_circle</span>
+  <span id="toast-text">Saved!</span>
+</div>
+
+<script>
+const API   = 'http://localhost:5000/api';
+const token = localStorage.getItem('token');
+
+try {
+  const u = JSON.parse(localStorage.getItem('user')||'{}');
+  document.getElementById('sidebar-name').textContent  = u.name  || 'Admin';
+  document.getElementById('sidebar-email').textContent = u.email || 'admin@wam.app';
+  const dm={admin:'Admin_dashboard.html',regular_user:'regular_user_dashboard.html',
+    business_owner:'business_owner_dashboard.html',authority_representative:'authority_representative_dashboard.html'};
+  document.getElementById('nav-dashboard').href=dm[u.role]||'Admin_dashboard.html';
+} catch(e){}
+
+function toggleSwitch(btn) {
+  btn.classList.toggle('on');
+}
+
+function showToast(msg, isError=false) {
+  const t = document.getElementById('toast');
+  t.className = `fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3 rounded-xl ${isError?'bg-red-500':'bg-green-500'} text-white text-sm font-semibold shadow-xl transition-opacity duration-300`;
+  document.getElementById('toast-text').textContent = msg;
+  t.style.opacity='1';
+  setTimeout(()=>t.style.opacity='0', 2500);
+}
+
+async function saveSettings() {
+  const btn=document.getElementById('save-btn');
+  const txt=document.getElementById('save-text');
+  const spn=document.getElementById('save-spinner');
+  txt.textContent='Saving...';spn.classList.remove('hidden');btn.disabled=true;
+  await new Promise(r=>setTimeout(r,800)); // simulate save
+  txt.textContent='Save Settings';spn.classList.add('hidden');btn.disabled=false;
+  showToast('Settings saved successfully!');
+}
+
+function resetSettings() {
+  if(confirm('Discard all changes?')) location.reload();
+}
+
+async function createBackup() {
+  const btn=document.getElementById('backup-btn');
+  const txt=document.getElementById('backup-btn-text');
+  const spn=document.getElementById('backup-spinner');
+  txt.textContent='Creating...';spn.classList.remove('hidden');btn.disabled=true;
+  try {
+    const res=await fetch(`${API}/admin/backups`,{
+      method:'POST', headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},
+      body:JSON.stringify({type:'manual'})
+    });
+    const data=await res.json();
+    showToast(data.success?'Backup created: '+data.data?.version:'Backup failed',!data.success);
+  } catch(e){showToast('Backup failed: '+e.message,true);}
+  finally{txt.textContent='Create Manual Backup';spn.classList.add('hidden');btn.disabled=false;}
+}
+
+function dangerAction(action) {
+  if(confirm(`⚠️ Are you sure you want to "${action}"? This cannot be undone.`)) {
+    showToast(`${action} — feature requires backend implementation.`, true);
+  }
+}
+
+function logout() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  window.location.href='login.html';
+}
+</script>
+</body>
+</html>

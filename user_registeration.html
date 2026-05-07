@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Wheelchair Accessibility Map - Login</title>
+<title>Wheelchair Accessibility Map - Register</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
@@ -49,55 +49,39 @@
   @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
   .spin { animation: spin 1s linear infinite; }
 
-  /* ── Modal ── */
-  #social-modal {
-    position: fixed; inset: 0; z-index: 100;
-    background: rgba(0,0,0,0.75);
-    backdrop-filter: blur(6px);
-    display: flex; align-items: center; justify-content: center; padding: 1rem;
-    opacity: 0; pointer-events: none;
-    transition: opacity 0.2s ease;
+  .role-card {
+    cursor: pointer;
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.2s ease;
+    background: rgba(0,0,0,0.2);
   }
-  #social-modal.show { opacity: 1; pointer-events: all; }
-  #social-modal .modal-box {
-    background: #111827;
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 1.25rem;
-    padding: 2rem 1.75rem;
-    width: 100%; max-width: 380px;
-    text-align: center;
-    transform: scale(0.95);
-    transition: transform 0.2s ease;
+  .role-card:hover { border-color: rgba(0,100,250,0.5); background: rgba(0,100,250,0.08); }
+  .role-card.selected { border-color: #0064fa; background: rgba(0,100,250,0.15); }
+  .role-card .role-radio {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.3);
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
   }
-  #social-modal.show .modal-box { transform: scale(1); }
+  .role-card.selected .role-radio {
+    border-color: #0064fa;
+    background: #0064fa;
+  }
+  .role-card.selected .role-radio::after {
+    content: ''; width: 7px; height: 7px; border-radius: 50%; background: white;
+  }
 </style>
 </head>
 <body class="font-display">
 <div class="orb1"></div>
 <div class="orb2"></div>
 
-<!-- ══ Social Modal ══ -->
-<div id="social-modal">
-  <div class="modal-box">
-    <div id="modal-icon"
-      class="w-14 h-14 rounded-full mx-auto mb-4 flex items-center justify-center"></div>
-    <h2 id="modal-title" class="text-white text-lg font-bold mb-2"></h2>
-    <p  id="modal-body"  class="text-gray-400 text-sm leading-relaxed mb-6"></p>
-    <div class="flex flex-col gap-3">
-      <button id="modal-close"
-        class="w-full h-11 rounded-xl bg-primary text-white font-bold text-sm hover:bg-blue-600 transition-colors">
-        Got it
-      </button>
-      <button id="modal-register"
-        class="w-full h-11 rounded-xl border border-white/15 text-gray-300 text-sm hover:bg-white/10 transition-colors">
-        Register with email instead
-      </button>
-    </div>
-  </div>
-</div>
-<!-- ════════════════════ -->
-
-<div class="flex min-h-screen w-full items-center justify-center p-4 relative z-10">
+<div class="flex min-h-screen w-full items-center justify-center p-4 py-10 relative z-10">
   <div class="w-full max-w-md">
 
     <!-- Logo -->
@@ -109,8 +93,8 @@
     </div>
 
     <div class="glassmorphism rounded-2xl p-8 shadow-2xl">
-      <h1 class="text-white text-2xl font-black text-center mb-1">Welcome back</h1>
-      <p class="text-gray-400 text-sm text-center mb-7">Sign in to your account to continue</p>
+      <h1 class="text-white text-2xl font-black text-center mb-1">Create an account</h1>
+      <p class="text-gray-400 text-sm text-center mb-7">Join us and help make the world more accessible</p>
 
       <!-- Messages -->
       <div id="error-msg" class="hidden mb-5 bg-red-500/20 border border-red-500/40 text-red-300 rounded-xl px-4 py-3 text-sm text-center flex items-center justify-center gap-2">
@@ -124,6 +108,16 @@
 
       <div class="flex flex-col gap-5">
 
+        <!-- Full Name -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-white text-sm font-medium">Full Name</label>
+          <div class="flex items-center rounded-xl bg-black/25 overflow-hidden border border-white/10 focus-within:border-primary transition-colors">
+            <span class="material-symbols-outlined text-gray-500 pl-4" style="font-size:20px">person</span>
+            <input id="fullname" type="text" placeholder="Your full name"
+              class="form-input flex-1 text-white bg-transparent border-none h-12 px-3 placeholder:text-gray-600 focus:ring-0 focus:outline-none text-sm"/>
+          </div>
+        </div>
+
         <!-- Email -->
         <div class="flex flex-col gap-1.5">
           <label class="text-white text-sm font-medium">Email address</label>
@@ -136,13 +130,10 @@
 
         <!-- Password -->
         <div class="flex flex-col gap-1.5">
-          <div class="flex justify-between items-center">
-            <label class="text-white text-sm font-medium">Password</label>
-            <a href="#" class="text-primary text-xs hover:underline">Forgot password?</a>
-          </div>
+          <label class="text-white text-sm font-medium">Password</label>
           <div class="flex items-center rounded-xl bg-black/25 overflow-hidden border border-white/10 focus-within:border-primary transition-colors">
             <span class="material-symbols-outlined text-gray-500 pl-4" style="font-size:20px">lock</span>
-            <input id="password" type="password" placeholder="Enter your password"
+            <input id="password" type="password" placeholder="Create a password"
               class="form-input flex-1 text-white bg-transparent border-none h-12 px-3 placeholder:text-gray-600 focus:ring-0 focus:outline-none text-sm"/>
             <button id="toggle-pass" type="button" class="pr-4 text-gray-500 hover:text-gray-300 transition-colors">
               <span class="material-symbols-outlined" style="font-size:20px">visibility</span>
@@ -150,49 +141,64 @@
           </div>
         </div>
 
-        <!-- Login Button -->
-        <button id="login-btn"
+        <!-- Confirm Password -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-white text-sm font-medium">Confirm Password</label>
+          <div class="flex items-center rounded-xl bg-black/25 overflow-hidden border border-white/10 focus-within:border-primary transition-colors">
+            <span class="material-symbols-outlined text-gray-500 pl-4" style="font-size:20px">lock_reset</span>
+            <input id="confirm-password" type="password" placeholder="Repeat your password"
+              class="form-input flex-1 text-white bg-transparent border-none h-12 px-3 placeholder:text-gray-600 focus:ring-0 focus:outline-none text-sm"/>
+            <button id="toggle-confirm" type="button" class="pr-4 text-gray-500 hover:text-gray-300 transition-colors">
+              <span class="material-symbols-outlined" style="font-size:20px">visibility</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Role -->
+        <div class="flex flex-col gap-2">
+          <label class="text-white text-sm font-medium">I am a...</label>
+          <div class="flex flex-col gap-2">
+
+            <div class="role-card selected" data-role="regular_user">
+              <div class="role-radio"></div>
+              <span class="material-symbols-outlined text-primary" style="font-size:20px">person_pin</span>
+              <div>
+                <p class="text-white text-sm font-semibold">Regular User</p>
+                <p class="text-gray-400 text-xs">Browse & rate accessible locations</p>
+              </div>
+            </div>
+
+            <div class="role-card" data-role="business_owner">
+              <div class="role-radio"></div>
+              <span class="material-symbols-outlined text-primary" style="font-size:20px">storefront</span>
+              <div>
+                <p class="text-white text-sm font-semibold">Business Owner</p>
+                <p class="text-gray-400 text-xs">Manage your business's accessibility info</p>
+              </div>
+            </div>
+
+            <div class="role-card" data-role="authority_representative">
+              <div class="role-radio"></div>
+              <span class="material-symbols-outlined text-primary" style="font-size:20px">account_balance</span>
+              <div>
+                <p class="text-white text-sm font-semibold">Authority Representative</p>
+                <p class="text-gray-400 text-xs">Official government or municipal representative</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Register Button -->
+        <button id="register-btn"
           class="w-full h-12 mt-1 rounded-xl bg-primary text-white font-bold text-sm hover:bg-blue-600 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-900/40">
-          <span id="btn-text">Sign In</span>
+          <span id="btn-text">Create Account</span>
           <span id="btn-spinner" class="hidden material-symbols-outlined spin" style="font-size:18px">autorenew</span>
         </button>
 
-        <!-- Divider -->
-        <div class="flex items-center gap-3">
-          <div class="flex-1 h-px bg-white/10"></div>
-          <span class="text-gray-500 text-xs">or continue with</span>
-          <div class="flex-1 h-px bg-white/10"></div>
-        </div>
-
-        <!-- Social Buttons -->
-        <div class="flex gap-3">
-          <button id="btn-google"
-            class="flex flex-1 items-center justify-center gap-2 rounded-xl h-11
-                   bg-white/8 border border-white/10 text-white text-sm
-                   hover:bg-white/15 active:scale-[0.97] transition-all cursor-pointer">
-            <svg width="18" height="18" viewBox="0 0 48 48">
-              <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.2l6.7-6.7C35.7 2.5 30.2 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.8 6C12.4 13.2 17.7 9.5 24 9.5z"/>
-              <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4 7.1-10 7.1-17z"/>
-              <path fill="#FBBC05" d="M10.5 28.7A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.8-4.7l-7.8-6A24 24 0 0 0 0 24c0 3.9.9 7.5 2.5 10.8l8-6.1z"/>
-              <path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.5-5.8c-2 1.4-4.6 2.2-7.7 2.2-6.3 0-11.6-3.7-13.5-9l-8 6.1C6.6 42.6 14.6 48 24 48z"/>
-            </svg>
-            Google
-          </button>
-
-          <button id="btn-facebook"
-            class="flex flex-1 items-center justify-center gap-2 rounded-xl h-11
-                   bg-white/8 border border-white/10 text-white text-sm
-                   hover:bg-white/15 active:scale-[0.97] transition-all cursor-pointer">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2">
-              <path d="M24 12.07C24 5.41 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.04V9.41c0-3.02 1.8-4.7 4.54-4.7 1.31 0 2.68.24 2.68.24v2.97h-1.5c-1.5 0-1.96.93-1.96 1.89v2.26h3.32l-.53 3.5h-2.8V24C19.62 23.1 24 18.1 24 12.07z"/>
-            </svg>
-            Facebook
-          </button>
-        </div>
-
         <p class="text-gray-400 text-sm text-center">
-          Don't have an account?
-          <a href="user_registeration.html" class="text-primary font-semibold hover:underline">Create one</a>
+          Already have an account?
+          <a href="login.html" class="text-primary font-semibold hover:underline">Sign in</a>
         </p>
 
       </div>
@@ -208,6 +214,7 @@
 
 <script>
   const API = 'http://localhost:5000/api';
+  let selectedRole = 'regular_user';
 
   if (localStorage.getItem('token')) {
     window.location.href = 'regular_user_dashboard.html';
@@ -224,109 +231,64 @@
     document.getElementById('error-msg').classList.add('hidden');
   }
 
-  // ── Toggle password ──
-  document.getElementById('toggle-pass').addEventListener('click', function () {
-    const input = document.getElementById('password');
-    const icon  = this.querySelector('span');
-    input.type  = input.type === 'password' ? 'text' : 'password';
-    icon.textContent = input.type === 'password' ? 'visibility' : 'visibility_off';
+  // Role cards
+  document.querySelectorAll('.role-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      selectedRole = card.dataset.role;
+    });
   });
 
-  // ── Login ──
-  document.getElementById('login-btn').addEventListener('click', async function () {
-    const email    = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
-    const btnText  = document.getElementById('btn-text');
-    const spinner  = document.getElementById('btn-spinner');
+  // Toggle passwords
+  function makeToggle(btnId, inputId) {
+    document.getElementById(btnId).addEventListener('click', function () {
+      const input = document.getElementById(inputId);
+      const icon  = this.querySelector('span');
+      input.type  = input.type === 'password' ? 'text' : 'password';
+      icon.textContent = input.type === 'password' ? 'visibility' : 'visibility_off';
+    });
+  }
+  makeToggle('toggle-pass', 'password');
+  makeToggle('toggle-confirm', 'confirm-password');
 
-    if (!email || !password) { showError('Please enter your email and password.'); return; }
+  // Register
+  document.getElementById('register-btn').addEventListener('click', async function () {
+    const fullname  = document.getElementById('fullname').value.trim();
+    const email     = document.getElementById('email').value.trim();
+    const password  = document.getElementById('password').value;
+    const confirm   = document.getElementById('confirm-password').value;
+    const btnText   = document.getElementById('btn-text');
+    const spinner   = document.getElementById('btn-spinner');
 
-    btnText.textContent = 'Signing in...';
+    if (!fullname)              { showError('Please enter your full name.'); return; }
+    if (!email)                 { showError('Please enter your email address.'); return; }
+    if (password.length < 6)   { showError('Password must be at least 6 characters.'); return; }
+    if (password !== confirm)   { showError('Passwords do not match.'); return; }
+
+    btnText.textContent = 'Creating account...';
     spinner.classList.remove('hidden');
     this.disabled = true;
 
     try {
-      const res  = await fetch(`${API}/auth/login`, {
+      const res  = await fetch(`${API}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ name: fullname, email, password, role: selectedRole })
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Invalid email or password.');
+      if (!res.ok) throw new Error(data.message || 'Registration failed. Please try again.');
 
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user || data.data));
-      showSuccess('Login successful! Redirecting...');
-
-      setTimeout(() => {
-        const role = (data.user || data.data)?.role;
-        const map  = {
-          admin: 'Admin_dashboard.html',
-          business_owner: 'business_owner_dashboard.html',
-          authority_representative: 'authority_representative_dashboard.html'
-        };
-        window.location.href = map[role] || 'regular_user_dashboard.html';
-      }, 800);
+      showSuccess('Account created! Redirecting to login...');
+      setTimeout(() => { window.location.href = 'login.html'; }, 1200);
 
     } catch (err) {
       showError(err.message);
-      btnText.textContent = 'Sign In';
+      btnText.textContent = 'Create Account';
       spinner.classList.add('hidden');
       this.disabled = false;
     }
   });
-
-  document.getElementById('password').addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('login-btn').click();
-  });
-
-  // ══════════════════════════════════════
-  // Social Modal
-  // ══════════════════════════════════════
-  const modal = document.getElementById('social-modal');
-
-  const providers = {
-    google: {
-      iconBg: '#f1f3f4',
-      iconHTML: `<svg width="28" height="28" viewBox="0 0 48 48">
-        <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.2l6.7-6.7C35.7 2.5 30.2 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.8 6C12.4 13.2 17.7 9.5 24 9.5z"/>
-        <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4 7.1-10 7.1-17z"/>
-        <path fill="#FBBC05" d="M10.5 28.7A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.8-4.7l-7.8-6A24 24 0 0 0 0 24c0 3.9.9 7.5 2.5 10.8l8-6.1z"/>
-        <path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.5-5.8c-2 1.4-4.6 2.2-7.7 2.2-6.3 0-11.6-3.7-13.5-9l-8 6.1C6.6 42.6 14.6 48 24 48z"/>
-      </svg>`,
-      title: 'Google Sign-In',
-      body: 'Google OAuth is not configured yet.<br><br>To enable it, a <strong style="color:#e2e8f0">Google Client ID</strong> needs to be set up in the backend.<br><br>Please use your <strong style="color:#e2e8f0">email and password</strong> to sign in for now.'
-    },
-    facebook: {
-      iconBg: '#1877F2',
-      iconHTML: `<svg width="28" height="28" viewBox="0 0 24 24" fill="white">
-        <path d="M24 12.07C24 5.41 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.04V9.41c0-3.02 1.8-4.7 4.54-4.7 1.31 0 2.68.24 2.68.24v2.97h-1.5c-1.5 0-1.96.93-1.96 1.89v2.26h3.32l-.53 3.5h-2.8V24C19.62 23.1 24 18.1 24 12.07z"/>
-      </svg>`,
-      title: 'Facebook Sign-In',
-      body: 'Facebook OAuth is not configured yet.<br><br>To enable it, a <strong style="color:#e2e8f0">Facebook App ID</strong> needs to be set up in the backend.<br><br>Please use your <strong style="color:#e2e8f0">email and password</strong> to sign in for now.'
-    }
-  };
-
-  function openModal(key) {
-    const p = providers[key];
-    const iconEl = document.getElementById('modal-icon');
-    iconEl.style.background = p.iconBg;
-    iconEl.innerHTML = p.iconHTML;
-    document.getElementById('modal-title').textContent = p.title;
-    document.getElementById('modal-body').innerHTML   = p.body;
-    modal.classList.add('show');
-  }
-
-  function closeModal() { modal.classList.remove('show'); }
-
-  document.getElementById('btn-google').addEventListener('click',   () => openModal('google'));
-  document.getElementById('btn-facebook').addEventListener('click', () => openModal('facebook'));
-  document.getElementById('modal-close').addEventListener('click', closeModal);
-  document.getElementById('modal-register').addEventListener('click', () => {
-    window.location.href = 'register.html';
-  });
-  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 </script>
 </body>
 </html>

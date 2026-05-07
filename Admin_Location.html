@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Locations Management - W-A-M</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<style>
+  .aurora-gradient {
+    background: radial-gradient(at 20% 80%,hsla(212,89%,55%,.2) 0,transparent 50%),
+                radial-gradient(at 80% 20%,hsla(288,89%,55%,.2) 0,transparent 50%);
+  }
+  .glassmorphism {
+    background:rgba(15,23,35,.6);backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.1);
+  }
+  .status-badge { display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:9999px;font-size:.75rem;font-weight:600; }
+  .badge-accessible    { background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.3); }
+  .badge-partial       { background:rgba(234,179,8,.15);color:#facc15;border:1px solid rgba(234,179,8,.3); }
+  .badge-inaccessible  { background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3); }
+  #add-modal,#view-modal {
+    position:fixed;inset:0;z-index:100;
+    background:rgba(0,0,0,.75);backdrop-filter:blur(6px);
+    display:flex;align-items:center;justify-content:center;padding:1rem;
+    opacity:0;pointer-events:none;transition:opacity .2s;
+  }
+  #add-modal.show,#view-modal.show{opacity:1;pointer-events:all;}
+  .modal-box{
+    background:#111827;border:1px solid rgba(255,255,255,.12);
+    border-radius:1.25rem;padding:2rem;width:100%;max-width:480px;
+    max-height:90vh;overflow-y:auto;
+    transform:scale(.95);transition:transform .2s;
+  }
+  #add-modal.show .modal-box,#view-modal.show .modal-box{transform:scale(1);}
+  @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+  .spin{animation:spin 1s linear infinite;}
+  tr:hover td{background:rgba(6,103,249,.05);}
+</style>
+<script>
+  tailwind.config={darkMode:"class",theme:{extend:{
+    colors:{"primary":"#0667f9","background-dark":"#0f1723"},
+    fontFamily:{"display":["Space Grotesk","sans-serif"]},
+    borderRadius:{"DEFAULT":"0.75rem","lg":"1rem","xl":"1.5rem","full":"9999px"},
+  }}}
+</script>
+</head>
+<body class="bg-background-dark font-display text-white">
+<div class="relative flex min-h-screen w-full">
+  <div class="absolute inset-0 aurora-gradient z-0"></div>
+
+  <!-- Sidebar -->
+  <aside class="relative z-10 w-64 flex-shrink-0 bg-background-dark/50 p-4">
+    <div class="flex h-full flex-col justify-between">
+      <div class="flex flex-col gap-8">
+        <div class="flex items-center gap-3 px-2">
+          <span class="material-symbols-outlined text-primary" style="font-size:32px">wheelchair_pickup</span>
+          <h1 class="text-xl font-bold">W-A-M</h1>
+        </div>
+        <nav class="flex flex-col gap-2">
+          <a href="#" id="nav-dashboard" class="flex items-center gap-3 px-3 py-2 rounded-lg text-white/70 hover:bg-primary/20 hover:text-white transition-colors">
+            <span class="material-symbols-outlined">dashboard</span><p class="text-sm font-medium">Dashboard</p>
+          </a>
+          <a href="report_management.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-white/70 hover:bg-primary/20 hover:text-white transition-colors">
+            <span class="material-symbols-outlined">assessment</span><p class="text-sm font-medium">Reports</p>
+          </a>
+          <a href="admin_users.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-white/70 hover:bg-primary/20 hover:text-white transition-colors">
+            <span class="material-symbols-outlined">group</span><p class="text-sm font-medium">Users</p>
+          </a>
+          <a href="admin_locations.html" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/20 text-white">
+            <span class="material-symbols-outlined">place</span><p class="text-sm font-medium">Locations</p>
+          </a>
+          <a href="admin_settings.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-white/70 hover:bg-primary/20 hover:text-white transition-colors">
+            <span class="material-symbols-outlined">settings</span><p class="text-sm font-medium">Settings</p>
+          </a>
+        </nav>
+      </div>
+      <div class="flex flex-col gap-4">
+        <div class="border-t border-white/10 my-2"></div>
+        <div class="flex items-center gap-3 px-2">
+          <div class="w-10 h-10 rounded-full bg-primary/30 flex items-center justify-center">
+            <span class="material-symbols-outlined text-primary">person</span>
+          </div>
+          <div>
+            <p class="text-sm font-medium" id="sidebar-name">Admin</p>
+            <p class="text-white/60 text-xs" id="sidebar-email">admin@wam.app</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="flex-1 p-8 overflow-y-auto relative z-10">
+    <div class="flex flex-col gap-8">
+
+      <!-- Header -->
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p class="text-3xl font-bold tracking-tight">Location Management</p>
+          <p class="text-white/60 text-base mt-1">View, verify, and manage all accessibility locations.</p>
+        </div>
+        <div class="flex gap-3">
+          <span class="text-white/50 text-sm self-center" id="loc-count">Loading...</span>
+          <button onclick="openAddModal()" class="flex items-center gap-2 h-10 px-4 rounded-lg bg-primary text-white text-sm font-bold hover:bg-blue-600 transition-colors">
+            <span class="material-symbols-outlined text-base">add</span> Add Location
+          </button>
+          <button onclick="exportCSV()" class="flex items-center gap-2 h-10 px-4 rounded-lg bg-white/10 text-white text-sm font-bold hover:bg-white/20 transition-colors">
+            <span class="material-symbols-outlined text-base">download</span> Export
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="glassmorphism rounded-xl p-4 flex flex-wrap gap-3 items-center">
+        <div class="flex items-center gap-2 flex-1 min-w-[180px] bg-white/5 rounded-lg px-3 h-10 border border-white/10">
+          <span class="material-symbols-outlined text-white/40" style="font-size:18px">search</span>
+          <input id="search-input" type="text" placeholder="Search locations..."
+            class="bg-transparent text-white text-sm flex-1 outline-none placeholder:text-white/30"
+            oninput="filterLocs()"/>
+        </div>
+        <select id="status-filter" onchange="filterLocs()" class="h-10 px-3 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:ring-2 focus:ring-primary">
+          <option value="">All Status</option>
+          <option value="accessible">Accessible</option>
+          <option value="partially_accessible">Partial</option>
+          <option value="not_accessible">Not Accessible</option>
+        </select>
+        <select id="cat-filter" onchange="filterLocs()" class="h-10 px-3 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:ring-2 focus:ring-primary">
+          <option value="">All Categories</option>
+          <option value="restaurant">Restaurant</option>
+          <option value="park">Park</option>
+          <option value="transport">Transport</option>
+          <option value="mall">Mall</option>
+          <option value="hospital">Hospital</option>
+          <option value="public_building">Public Building</option>
+        </select>
+        <select id="verified-filter" onchange="filterLocs()" class="h-10 px-3 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:ring-2 focus:ring-primary">
+          <option value="">All</option>
+          <option value="1">Verified</option>
+          <option value="0">Unverified</option>
+        </select>
+      </div>
+
+      <!-- Table -->
+      <div class="glassmorphism rounded-xl overflow-hidden">
+        <div id="loading-state" class="flex items-center justify-center py-16 gap-3">
+          <span class="material-symbols-outlined text-primary spin" style="font-size:28px">autorenew</span>
+          <p class="text-white/60">Loading locations...</p>
+        </div>
+        <div id="error-state" class="hidden flex-col items-center justify-center py-16 gap-3 text-center">
+          <span class="material-symbols-outlined text-red-400" style="font-size:40px">error</span>
+          <p class="text-white/60 text-sm" id="error-msg">Failed to load.</p>
+          <button onclick="loadLocations()" class="mt-2 px-4 h-9 rounded-lg bg-primary/20 text-primary text-sm font-semibold">Retry</button>
+        </div>
+        <table id="locs-table" class="hidden w-full text-left">
+          <thead>
+            <tr class="border-b border-white/10">
+              <th class="px-6 py-4 text-white/50 text-xs font-semibold uppercase">Location</th>
+              <th class="px-6 py-4 text-white/50 text-xs font-semibold uppercase">Category</th>
+              <th class="px-6 py-4 text-white/50 text-xs font-semibold uppercase">Status</th>
+              <th class="px-6 py-4 text-white/50 text-xs font-semibold uppercase">Rating</th>
+              <th class="px-6 py-4 text-white/50 text-xs font-semibold uppercase">Verified</th>
+              <th class="px-6 py-4 text-white/50 text-xs font-semibold uppercase text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="locs-tbody"></tbody>
+        </table>
+        <div id="empty-state" class="hidden flex-col items-center justify-center py-16 gap-3">
+          <span class="material-symbols-outlined text-white/20" style="font-size:48px">location_off</span>
+          <p class="text-white/40">No locations found</p>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div id="pagination" class="hidden flex items-center justify-between">
+        <p class="text-white/50 text-sm" id="pagination-info"></p>
+        <div class="flex gap-2">
+          <button id="prev-btn" onclick="changePage(-1)" class="h-9 px-4 rounded-lg bg-white/10 text-white text-sm font-semibold hover:bg-white/20">← Prev</button>
+          <button id="next-btn" onclick="changePage(1)"  class="h-9 px-4 rounded-lg bg-white/10 text-white text-sm font-semibold hover:bg-white/20">Next →</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Add Location Modal -->
+<div id="add-modal">
+  <div class="modal-box">
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="text-lg font-bold">Add New Location</h2>
+      <button onclick="closeAddModal()" class="text-white/50 hover:text-white"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="flex flex-col gap-4">
+      <div class="flex flex-col gap-1.5">
+        <label class="text-white/70 text-sm">Location Name</label>
+        <input id="add-name" type="text" class="h-11 px-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:ring-2 focus:ring-primary outline-none" placeholder="e.g. City Library"/>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-white/70 text-sm">Category</label>
+          <select id="add-cat" class="h-11 px-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:ring-2 focus:ring-primary">
+            <option value="restaurant">Restaurant</option>
+            <option value="park">Park</option>
+            <option value="transport">Transport</option>
+            <option value="mall">Mall</option>
+            <option value="hospital">Hospital</option>
+            <option value="public_building">Public Building</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-white/70 text-sm">Accessibility</label>
+          <select id="add-status" class="h-11 px-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:ring-2 focus:ring-primary">
+            <option value="accessible">Accessible</option>
+            <option value="partially_accessible">Partial</option>
+            <option value="not_accessible">Not Accessible</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <label class="text-white/70 text-sm">Address</label>
+        <input id="add-address" type="text" class="h-11 px-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:ring-2 focus:ring-primary outline-none" placeholder="Full address"/>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-white/70 text-sm">Latitude</label>
+          <input id="add-lat" type="number" step="any" class="h-11 px-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:ring-2 focus:ring-primary outline-none" placeholder="30.044"/>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-white/70 text-sm">Longitude</label>
+          <input id="add-lng" type="number" step="any" class="h-11 px-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:ring-2 focus:ring-primary outline-none" placeholder="31.235"/>
+        </div>
+      </div>
+      <div id="add-error" class="hidden bg-red-500/20 border border-red-500/40 text-red-300 rounded-xl px-4 py-3 text-sm text-center"></div>
+      <div class="flex gap-3 mt-2">
+        <button onclick="closeAddModal()" class="flex-1 h-11 rounded-xl border border-white/15 text-white/70 text-sm hover:bg-white/10 transition-colors">Cancel</button>
+        <button onclick="saveLocation()" id="add-save-btn" class="flex-1 h-11 rounded-xl bg-primary text-white text-sm font-bold hover:bg-blue-600 transition-colors flex items-center justify-center gap-2">
+          <span id="add-btn-text">Add Location</span>
+          <span id="add-spinner" class="hidden material-symbols-outlined spin" style="font-size:16px">autorenew</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- View Modal -->
+<div id="view-modal">
+  <div class="modal-box">
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="text-lg font-bold">Location Details</h2>
+      <button onclick="closeViewModal()" class="text-white/50 hover:text-white"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div id="view-content"></div>
+    <button onclick="closeViewModal()" class="w-full mt-4 h-11 rounded-xl border border-white/15 text-white/70 text-sm hover:bg-white/10 transition-colors">Close</button>
+  </div>
+</div>
+
+<style>@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}</style>
+<script>
+const API   = 'http://localhost:5000/api';
+const token = localStorage.getItem('token');
+const PAGE  = 15;
+let allLocs=[], filteredLocs=[], currentPage=1;
+
+// Sidebar
+try {
+  const u = JSON.parse(localStorage.getItem('user')||'{}');
+  document.getElementById('sidebar-name').textContent  = u.name  || 'Admin';
+  document.getElementById('sidebar-email').textContent = u.email || 'admin@wam.app';
+  const dm = {admin:'Admin_dashboard.html',regular_user:'regular_user_dashboard.html',
+    business_owner:'business_owner_dashboard.html',authority_representative:'authority_representative_dashboard.html'};
+  document.getElementById('nav-dashboard').href = dm[u.role]||'Admin_dashboard.html';
+} catch(e){}
+
+async function loadLocations() {
+  document.getElementById('loading-state').style.display='flex';
+  document.getElementById('error-state').classList.add('hidden');
+  document.getElementById('locs-table').classList.add('hidden');
+  try {
+    const res  = await fetch(`${API}/locations?limit=200`, { headers:{Authorization:`Bearer ${token}`} });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message||'Failed');
+    allLocs = data.data || [];
+    filteredLocs = [...allLocs];
+    document.getElementById('loc-count').textContent = `${allLocs.length} total`;
+    renderTable();
+  } catch(err) {
+    document.getElementById('loading-state').style.display='none';
+    const e = document.getElementById('error-state');
+    e.classList.remove('hidden'); e.style.display='flex';
+    document.getElementById('error-msg').textContent = err.message;
+  }
+}
+
+function filterLocs() {
+  const q    = document.getElementById('search-input').value.toLowerCase();
+  const stat = document.getElementById('status-filter').value;
+  const cat  = document.getElementById('cat-filter').value;
+  const ver  = document.getElementById('verified-filter').value;
+  filteredLocs = allLocs.filter(l => {
+    const mq = !q   || l.name?.toLowerCase().includes(q) || l.address?.toLowerCase().includes(q);
+    const ms = !stat || l.accessibilityStatus === stat;
+    const mc = !cat  || l.category === cat;
+    const mv = ver==='' || (ver==='1' ? l.isVerified : !l.isVerified);
+    return mq && ms && mc && mv;
+  });
+  currentPage=1; renderTable();
+}
+
+const catLabel = {restaurant:'Restaurant',park:'Park',transport:'Transport',
+  mall:'Mall',hospital:'Hospital',public_building:'Public Building',other:'Other'};
+
+function renderTable() {
+  document.getElementById('loading-state').style.display='none';
+  const start = (currentPage-1)*PAGE;
+  const page  = filteredLocs.slice(start, start+PAGE);
+
+  if (!filteredLocs.length) {
+    document.getElementById('locs-table').classList.add('hidden');
+    const e = document.getElementById('empty-state');
+    e.classList.remove('hidden'); e.style.display='flex';
+    document.getElementById('pagination').classList.add('hidden');
+    return;
+  }
+  document.getElementById('empty-state').style.display='none';
+  document.getElementById('locs-table').classList.remove('hidden');
+  document.getElementById('pagination').classList.remove('hidden');
+
+  const tbody = document.getElementById('locs-tbody');
+  tbody.innerHTML='';
+  page.forEach(l => {
+    const statusCls = {accessible:'badge-accessible',partially_accessible:'badge-partial',not_accessible:'badge-inaccessible'}[l.accessibilityStatus]||'badge-partial';
+    const statusLbl = {accessible:'Accessible',partially_accessible:'Partial',not_accessible:'Not Accessible'}[l.accessibilityStatus]||'Unknown';
+    const tr = document.createElement('tr');
+    tr.className='border-b border-white/5 transition-colors';
+    tr.innerHTML=`
+      <td class="px-6 py-4">
+        <p class="text-white text-sm font-semibold">${esc(l.name||'—')}</p>
+        <p class="text-white/40 text-xs">${esc(l.address||'—')}</p>
+      </td>
+      <td class="px-6 py-4 text-white/70 text-sm capitalize">${catLabel[l.category]||l.category||'—'}</td>
+      <td class="px-6 py-4"><span class="status-badge ${statusCls}">${statusLbl}</span></td>
+      <td class="px-6 py-4">
+        <div class="flex items-center gap-1">
+          <span class="material-symbols-outlined text-yellow-400" style="font-size:16px">star</span>
+          <span class="text-white text-sm">${l.averageRating||'0'}</span>
+          <span class="text-white/40 text-xs">(${l.totalReviews||0})</span>
+        </div>
+      </td>
+      <td class="px-6 py-4">
+        ${l.isVerified
+          ? `<span class="flex items-center gap-1 text-green-400 text-xs"><span class="material-symbols-outlined" style="font-size:16px">verified</span>Verified</span>`
+          : `<span class="text-white/40 text-xs">Pending</span>`}
+      </td>
+      <td class="px-6 py-4 text-right">
+        <div class="flex items-center justify-end gap-1">
+          <button onclick='viewLoc(${JSON.stringify(l).replace(/'/g,"&#39;")})' title="View"
+            class="w-8 h-8 rounded-lg flex items-center justify-center text-white/50 hover:bg-primary/20 hover:text-primary transition-colors">
+            <span class="material-symbols-outlined" style="font-size:18px">visibility</span>
+          </button>
+          <button onclick="toggleVerify(${l.id},${l.isVerified?1:0})" title="${l.isVerified?'Unverify':'Verify'}"
+            class="w-8 h-8 rounded-lg flex items-center justify-center text-white/50 hover:bg-${l.isVerified?'red':'green'}-500/20 hover:text-${l.isVerified?'red':'green'}-400 transition-colors">
+            <span class="material-symbols-outlined" style="font-size:18px">${l.isVerified?'unpublished':'verified'}</span>
+          </button>
+          <button onclick="deleteLocation(${l.id})" title="Delete"
+            class="w-8 h-8 rounded-lg flex items-center justify-center text-white/50 hover:bg-red-500/20 hover:text-red-400 transition-colors">
+            <span class="material-symbols-outlined" style="font-size:18px">delete</span>
+          </button>
+        </div>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+
+  const total=filteredLocs.length, pages=Math.ceil(total/PAGE);
+  document.getElementById('pagination-info').textContent=`${start+1}–${Math.min(start+PAGE,total)} of ${total}`;
+  document.getElementById('prev-btn').disabled=currentPage===1;
+  document.getElementById('next-btn').disabled=currentPage>=pages;
+}
+
+function changePage(d){currentPage+=d;renderTable();}
+
+function viewLoc(l) {
+  const feats = typeof l.features==='string'?JSON.parse(l.features||'{}'):l.features||{};
+  const featList = Object.entries(feats).filter(([,v])=>v).map(([k])=>
+    `<span class="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/20 text-primary rounded-full text-xs">${k.replace('has','').replace(/([A-Z])/g,' $1').trim()}</span>`
+  ).join('');
+  document.getElementById('view-content').innerHTML=`
+    <div class="flex flex-col gap-3">
+      <div><p class="text-white text-xl font-bold">${esc(l.name||'')}</p><p class="text-white/50 text-sm">${esc(l.address||'')}</p></div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="bg-white/5 rounded-xl p-3"><p class="text-white/50 text-xs">Category</p><p class="text-white text-sm font-semibold capitalize">${catLabel[l.category]||l.category}</p></div>
+        <div class="bg-white/5 rounded-xl p-3"><p class="text-white/50 text-xs">Rating</p><p class="text-yellow-400 text-sm font-semibold">⭐ ${l.averageRating||0} (${l.totalReviews||0} reviews)</p></div>
+        <div class="bg-white/5 rounded-xl p-3"><p class="text-white/50 text-xs">Coordinates</p><p class="text-white text-xs font-mono">${l.lat||0}, ${l.lng||0}</p></div>
+        <div class="bg-white/5 rounded-xl p-3"><p class="text-white/50 text-xs">Verified</p><p class="text-sm font-semibold ${l.isVerified?'text-green-400':'text-white/40'}">${l.isVerified?'Yes':'Pending'}</p></div>
+      </div>
+      ${featList?`<div><p class="text-white/50 text-xs mb-2">Accessibility Features</p><div class="flex flex-wrap gap-2">${featList}</div></div>`:''}
+      ${l.description?`<div class="bg-white/5 rounded-xl p-3"><p class="text-white/50 text-xs mb-1">Description</p><p class="text-white/80 text-sm">${esc(l.description)}</p></div>`:''}
+    </div>`;
+  document.getElementById('view-modal').classList.add('show');
+}
+
+async function toggleVerify(id, current) {
+  try {
+    await fetch(`${API}/locations/${id}`, {
+      method:'PUT', headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},
+      body: JSON.stringify({isVerified:!current})
+    });
+    const i=allLocs.findIndex(x=>x.id===id);
+    if(i!==-1) allLocs[i].isVerified=!current;
+    filterLocs();
+  } catch(e){alert('Failed: '+e.message);}
+}
+
+async function deleteLocation(id) {
+  if (!confirm('Delete this location? This cannot be undone.')) return;
+  try {
+    await fetch(`${API}/locations/${id}`,{method:'DELETE',headers:{Authorization:`Bearer ${token}`}});
+    allLocs=allLocs.filter(x=>x.id!==id);
+    filterLocs();
+  } catch(e){alert('Failed: '+e.message);}
+}
+
+function openAddModal(){document.getElementById('add-modal').classList.add('show');}
+function closeAddModal(){document.getElementById('add-modal').classList.remove('show');}
+function closeViewModal(){document.getElementById('view-modal').classList.remove('show');}
+
+async function saveLocation() {
+  const name=document.getElementById('add-name').value.trim();
+  const cat =document.getElementById('add-cat').value;
+  const stat=document.getElementById('add-status').value;
+  const addr=document.getElementById('add-address').value.trim();
+  const lat =parseFloat(document.getElementById('add-lat').value);
+  const lng =parseFloat(document.getElementById('add-lng').value);
+  const errEl=document.getElementById('add-error');
+  errEl.classList.add('hidden');
+
+  if(!name||!addr||isNaN(lat)||isNaN(lng)){errEl.textContent='Please fill all fields.';errEl.classList.remove('hidden');return;}
+
+  const btn=document.getElementById('add-save-btn');
+  const txt=document.getElementById('add-btn-text');
+  const spn=document.getElementById('add-spinner');
+  txt.textContent='Saving...';spn.classList.remove('hidden');btn.disabled=true;
+
+  try {
+    const res=await fetch(`${API}/locations`,{
+      method:'POST', headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},
+      body:JSON.stringify({name,category:cat,accessibilityStatus:stat,address:addr,coordinates:{lat,lng}})
+    });
+    const data=await res.json();
+    if(!res.ok) throw new Error(data.message||'Failed');
+    allLocs.unshift(data.data||data);
+    filterLocs(); closeAddModal();
+    // Reset
+    ['add-name','add-address','add-lat','add-lng'].forEach(id=>document.getElementById(id).value='');
+  } catch(err){errEl.textContent=err.message;errEl.classList.remove('hidden');}
+  finally{txt.textContent='Add Location';spn.classList.add('hidden');btn.disabled=false;}
+}
+
+function exportCSV() {
+  const rows=[['ID','Name','Address','Category','Status','Rating','Reviews','Verified']];
+  filteredLocs.forEach(l=>rows.push([l.id,l.name,l.address,l.category,l.accessibilityStatus,l.averageRating,l.totalReviews,l.isVerified?'Yes':'No']));
+  const csv=rows.map(r=>r.map(c=>`"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download=`locations_${new Date().toISOString().split('T')[0]}.csv`;a.click();
+}
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeAddModal();closeViewModal();}});
+document.getElementById('add-modal').addEventListener('click',e=>{if(e.target===document.getElementById('add-modal'))closeAddModal();});
+document.getElementById('view-modal').addEventListener('click',e=>{if(e.target===document.getElementById('view-modal'))closeViewModal();});
+
+loadLocations();
+</script>
+</body>
+</html>
