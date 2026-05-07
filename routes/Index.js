@@ -102,11 +102,11 @@ router.delete('/auth/delete-account', protect, deleteAccount);
 
 // ───────────── LOCATIONS ─────────────
 router.get('/locations', optionalAuth, getLocations);
+router.get('/locations/analytics', protect, authorize('admin', 'authority_representative'), getAnalytics);
 router.get('/locations/:id', optionalAuth, getLocation);
 router.post('/locations', protect, createLocation);
 router.put('/locations/:id', protect, updateLocation);
 router.delete('/locations/:id', protect, authorize('admin', 'authority_representative'), deleteLocation);
-router.get('/locations/analytics', protect, authorize('admin', 'authority_representative'), getAnalytics);
 router.post('/locations/:id/save', protect, saveLocation);
 
 
