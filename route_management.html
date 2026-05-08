@@ -1,435 +1,289 @@
-<!--<!DOCTYPE html>-->
-
-<!--<html class="dark" lang="en"><head>-->
-<!--<meta charset="utf-8"/>-->
-<!--<meta content="width=device-width, initial-scale=1.0" name="viewport"/>-->
-<!--<title>Wheelchair Accessibility Map - Route Management</title>-->
-<!--<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>-->
-<!--<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&amp;display=swap" rel="stylesheet"/>-->
-<!--<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>-->
-<!--<script>-->
-<!--        tailwind.config = {-->
-<!--            darkMode: "class",-->
-<!--            theme: {-->
-<!--                extend: {-->
-<!--                    colors: {-->
-<!--                        "primary": "#0667f9",-->
-<!--                        "background-light": "#f5f7f8",-->
-<!--                        "background-dark": "#0f1723",-->
-<!--                    },-->
-<!--                    fontFamily: {-->
-<!--                        "display": ["Space Grotesk", "sans-serif"]-->
-<!--                    },-->
-<!--                    borderRadius: {-->
-<!--                        "DEFAULT": "0.5rem",-->
-<!--                        "lg": "1rem",-->
-<!--                        "xl": "1.5rem",-->
-<!--                        "full": "9999px"-->
-<!--                    },-->
-<!--                },-->
-<!--            },-->
-<!--        }-->
-<!--    </script>-->
-<!--<style>-->
-<!--        .glassmorphism {-->
-<!--            background: rgba(15, 23, 35, 0.6);-->
-<!--            -webkit-backdrop-filter: blur(12px);-->
-<!--            backdrop-filter: blur(12px);-->
-<!--            border: 1px solid rgba(255, 255, 255, 0.1);-->
-<!--        }-->
-<!--        .aurora-gradient {-->
-<!--            background-image: radial-gradient(at 27% 37%, hsla(215,98%,60%,0.3) 0px, transparent 50%), radial-gradient(at 97% 21%, hsla(177,98%,60%,0.3) 0px, transparent 50%), radial-gradient(at 52% 99%, hsla(285,98%,60%,0.3) 0px, transparent 50%);-->
-<!--        }-->
-<!--    </style>-->
-<!--</head>-->
-<!--<body class="bg-background-light dark:bg-background-dark font-display text-white">-->
-<!--<div class="relative min-h-screen w-full">-->
-<!--&lt;!&ndash; Map Background &ndash;&gt;-->
-<!--<div class="absolute inset-0 bg-cover bg-center" data-alt="A stylized, dark-themed map of a city with glowing blue route lines." data-location="Futuristic City" style='background-image: url("https://placeholder.pics/svg/300");'></div>-->
-<!--<div class="absolute inset-0 aurora-gradient"></div>-->
-<!--&lt;!&ndash; Main Content &ndash;&gt;-->
-<!--<div class="relative flex h-full min-h-screen flex-col p-4 sm:p-6 lg:p-8">-->
-<!--<div class="flex flex-col lg:flex-row gap-6 h-full">-->
-<!--&lt;!&ndash; Left Panel: Route Management &ndash;&gt;-->
-<!--<aside class="w-full lg:w-1/3 lg:max-w-md flex flex-col gap-6">-->
-<!--<div class="glassmorphism rounded-xl p-6 shadow-2xl flex flex-col gap-6">-->
-<!--&lt;!&ndash; Header &ndash;&gt;-->
-<!--<div>-->
-<!--<p class="text-white tracking-light text-[32px] font-bold leading-tight">Your Route</p>-->
-<!--</div>-->
-<!--&lt;!&ndash; Origin and Destination &ndash;&gt;-->
-<!--<div class="flex flex-col gap-4">-->
-<!--<label class="flex flex-col">-->
-<!--<p class="text-white/80 text-sm font-medium pb-2">Origin</p>-->
-<!--<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary border border-white/20 bg-black/30 h-12 placeholder:text-white/50 px-4 text-base font-normal leading-normal" value="123 Main Street, Anytown"/>-->
-<!--</label>-->
-<!--<label class="flex flex-col">-->
-<!--<p class="text-white/80 text-sm font-medium pb-2">Destination</p>-->
-<!--<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary border border-white/20 bg-black/30 h-12 placeholder:text-white/50 px-4 text-base font-normal leading-normal" value="Central City Library"/>-->
-<!--</label>-->
-<!--</div>-->
-<!--&lt;!&ndash; Route Info &ndash;&gt;-->
-<!--<div class="border-t border-white/10 pt-4">-->
-<!--<div class="flex justify-between gap-x-6 py-2">-->
-<!--<p class="text-white/60 text-sm font-normal">Estimated Arrival</p>-->
-<!--<p class="text-white text-sm font-bold">12:35 PM</p>-->
-<!--</div>-->
-<!--<div class="flex justify-between gap-x-6 py-2">-->
-<!--<p class="text-white/60 text-sm font-normal">Distance</p>-->
-<!--<p class="text-white text-sm font-bold">2.1 miles</p>-->
-<!--</div>-->
-<!--</div>-->
-<!--&lt;!&ndash; Obstacle Warnings &ndash;&gt;-->
-<!--<div class="border-t border-white/10 pt-4">-->
-<!--<p class="text-white/80 text-sm font-medium pb-2">Potential Obstacles</p>-->
-<!--<div class="flex flex-col gap-2">-->
-<!--<div class="flex items-center gap-3">-->
-<!--<span class="material-symbols-outlined text-yellow-400">construction</span>-->
-<!--<p class="text-white/90 text-sm">Construction zone ahead</p>-->
-<!--</div>-->
-<!--<div class="flex items-center gap-3">-->
-<!--<span class="material-symbols-outlined text-orange-400">stairs</span>-->
-<!--<p class="text-white/90 text-sm">Steep incline reported</p>-->
-<!--</div>-->
-<!--</div>-->
-<!--</div>-->
-<!--&lt;!&ndash; Navigation Controls &ndash;&gt;-->
-<!--<div class="border-t border-white/10 pt-4 flex flex-col gap-4">-->
-<!--<button class="w-full flex items-center justify-center gap-2 bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-primary/90 transition-colors shadow-lg">-->
-<!--<span class="material-symbols-outlined">navigation</span>-->
-<!--                               Start Navigation-->
-<!--                           </button>-->
-<!--<div class="grid grid-cols-2 gap-3">-->
-<!--<button class="flex items-center justify-center gap-2 bg-white/10 text-white font-medium py-2 px-3 rounded-lg hover:bg-white/20 transition-colors">-->
-<!--<span class="material-symbols-outlined text-sm">cloud_download</span>-->
-<!--                                   Offline-->
-<!--                               </button>-->
-<!--<button class="flex items-center justify-center gap-2 bg-white/10 text-white font-medium py-2 px-3 rounded-lg hover:bg-white/20 transition-colors">-->
-<!--<span class="material-symbols-outlined text-sm">cancel</span>-->
-<!--                                   End Route-->
-<!--                               </button>-->
-<!--</div>-->
-<!--</div>-->
-<!--</div>-->
-<!--&lt;!&ndash; Voice and Direction Controls &ndash;&gt;-->
-<!--<div class="glassmorphism rounded-xl p-6 shadow-2xl flex flex-col gap-4">-->
-<!--<p class="text-white/80 text-sm font-medium">Direction &amp; Voice Controls</p>-->
-<!--&lt;!&ndash; Direction Modality &ndash;&gt;-->
-<!--<div class="flex items-center justify-between bg-black/30 rounded-lg p-1">-->
-<!--<button class="flex-1 text-sm font-medium py-2 px-3 rounded-md bg-primary text-white">Voice</button>-->
-<!--<button class="flex-1 text-sm font-medium py-2 px-3 rounded-md text-white/70 hover:bg-white/10">Text</button>-->
-<!--<button class="flex-1 text-sm font-medium py-2 px-3 rounded-md text-white/70 hover:bg-white/10">Vibration</button>-->
-<!--</div>-->
-<!--&lt;!&ndash; Playback Controls &ndash;&gt;-->
-<!--<div class="flex items-center justify-center gap-4 py-2">-->
-<!--<button class="text-white/70 hover:text-white transition-colors">-->
-<!--<span class="material-symbols-outlined">skip_previous</span>-->
-<!--</button>-->
-<!--<button class="bg-white/10 p-3 rounded-full text-white hover:bg-white/20 transition-colors">-->
-<!--<span class="material-symbols-outlined">pause</span>-->
-<!--</button>-->
-<!--<button class="text-white/70 hover:text-white transition-colors">-->
-<!--<span class="material-symbols-outlined">skip_next</span>-->
-<!--</button>-->
-<!--</div>-->
-<!--&lt;!&ndash; Voice Options &ndash;&gt;-->
-<!--<div class="flex items-center justify-between">-->
-<!--<p class="text-white/80 text-sm">Voice</p>-->
-<!--<select class="form-select bg-black/30 border-none text-white/90 text-sm rounded-md focus:ring-2 focus:ring-primary">-->
-<!--<option>Female (Default)</option>-->
-<!--<option>Male</option>-->
-<!--<option>Neutral</option>-->
-<!--</select>-->
-<!--</div>-->
-<!--<div class="flex items-center justify-between">-->
-<!--<p class="text-white/80 text-sm">Speed</p>-->
-<!--<input class="w-1/2 h-1 bg-white/30 rounded-full appearance-none accent-primary cursor-pointer" max="2" min="0.5" step="0.25" type="range" value="1"/>-->
-<!--</div>-->
-<!--</div>-->
-<!--</aside>-->
-<!--&lt;!&ndash; Right side: Map controls and notifications &ndash;&gt;-->
-<!--<div class="flex-1 flex flex-col justify-between items-end gap-4">-->
-<!--&lt;!&ndash; Top Notification &ndash;&gt;-->
-<!--<div class="w-full lg:max-w-lg">-->
-<!--<div class="flex flex-1 flex-col items-start justify-between gap-4 rounded-xl border border-cyan-400/50 bg-background-dark/70 p-5 shadow-lg @[480px]:flex-row @[480px]:items-center backdrop-blur-sm">-->
-<!--<div class="flex items-center gap-4">-->
-<!--<span class="material-symbols-outlined text-cyan-400 text-3xl animate-pulse">warning</span>-->
-<!--<div class="flex flex-col gap-1">-->
-<!--<p class="text-white text-base font-bold leading-tight">Obstacle Detected!</p>-->
-<!--<p class="text-white/70 text-base font-normal leading-normal">Re-routing to a more accessible path to avoid construction.</p>-->
-<!--</div>-->
-<!--</div>-->
-<!--</div>-->
-<!--</div>-->
-<!--&lt;!&ndash; Map Controls &ndash;&gt;-->
-<!--<div class="flex flex-col items-end gap-3">-->
-<!--<div class="flex flex-col gap-0.5">-->
-<!--<button class="flex size-12 items-center justify-center rounded-t-xl glassmorphism shadow-2xl">-->
-<!--<span class="material-symbols-outlined text-white">add</span>-->
-<!--</button>-->
-<!--<button class="flex size-12 items-center justify-center rounded-b-xl glassmorphism shadow-2xl">-->
-<!--<span class="material-symbols-outlined text-white">remove</span>-->
-<!--</button>-->
-<!--</div>-->
-<!--<button class="flex size-12 items-center justify-center rounded-xl glassmorphism shadow-2xl">-->
-<!--<span class="material-symbols-outlined text-white">my_location</span>-->
-<!--</button>-->
-<!--</div>-->
-<!--</div>-->
-<!--</div>-->
-<!--&lt;!&ndash; Floating Accessibility Toolbar &ndash;&gt;-->
-<!--<div class="fixed bottom-4 right-4">-->
-<!--<button class="flex size-14 items-center justify-center rounded-full bg-primary text-white shadow-2xl hover:bg-primary/90 transition-colors">-->
-<!--<span class="material-symbols-outlined text-3xl">accessibility_new</span>-->
-<!--</button>-->
-<!--</div>-->
-<!--</div>-->
-<!--</div>-->
-<!--</body></html>-->
 <!DOCTYPE html>
-
-<html class="dark" lang="en"><head>
+<html class="dark" lang="en">
+<head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Wheelchair Accessibility Map - Route Management</title>
+<title>Wheelchair Accessibility Map - Locations</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#0667f9",
-                        "background-light": "#f5f7f8",
-                        "background-dark": "#0f1723",
-                    },
-                    fontFamily: {
-                        "display": ["Space Grotesk", "sans-serif"]
-                    },
-                    borderRadius: {
-                        "DEFAULT": "0.5rem",
-                        "lg": "1rem",
-                        "xl": "1.5rem",
-                        "full": "9999px"
-                    },
-                },
-            },
-        }
-    </script>
-<style>
-        .glassmorphism {
-            background: rgba(15, 23, 35, 0.6);
-            -webkit-backdrop-filter: blur(12px);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .aurora-gradient {
-            background-image: radial-gradient(at 27% 37%, hsla(215,98%,60%,0.3) 0px, transparent 50%), radial-gradient(at 97% 21%, hsla(177,98%,60%,0.3) 0px, transparent 50%), radial-gradient(at 52% 99%, hsla(285,98%,60%,0.3) 0px, transparent 50%);
-        }
-    </style>
-</head>
-<body class="bg-background-light dark:bg-background-dark font-display text-white">
-<div class="relative min-h-screen w-full">
-<!-- Map Background -->
-<div class="absolute inset-0 bg-cover bg-center" data-alt="A stylized, dark-themed map of a city with glowing blue route lines." data-location="Futuristic City" style='background-image: url("https://placeholder.pics/svg/300");'></div>
-<div class="absolute inset-0 aurora-gradient"></div>
-<!-- Main Content -->
-<div class="relative flex h-full min-h-screen flex-col p-4 sm:p-6 lg:p-8">
-<div class="flex flex-col lg:flex-row gap-6 h-full">
-<!-- Left Panel: Route Management -->
-<aside class="w-full lg:w-1/3 lg:max-w-md flex flex-col gap-6">
-<div class="glassmorphism rounded-xl p-6 shadow-2xl flex flex-col gap-6">
-<!-- Header -->
-<div>
-<p class="text-white tracking-light text-[32px] font-bold leading-tight">Your Route</p>
-</div>
-<!-- Origin and Destination -->
-<div class="flex flex-col gap-4">
-<label class="flex flex-col">
-<p class="text-white/80 text-sm font-medium pb-2">Origin</p>
-<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary border border-white/20 bg-black/30 h-12 placeholder:text-white/50 px-4 text-base font-normal leading-normal" value="123 Main Street, Anytown"/>
-</label>
-<label class="flex flex-col">
-<p class="text-white/80 text-sm font-medium pb-2">Destination</p>
-<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary border border-white/20 bg-black/30 h-12 placeholder:text-white/50 px-4 text-base font-normal leading-normal" value="Central City Library"/>
-</label>
-</div>
-<!-- Route Info -->
-<div class="border-t border-white/10 pt-4">
-<div class="flex justify-between gap-x-6 py-2">
-<p class="text-white/60 text-sm font-normal">Estimated Arrival</p>
-<p class="text-white text-sm font-bold">12:35 PM</p>
-</div>
-<div class="flex justify-between gap-x-6 py-2">
-<p class="text-white/60 text-sm font-normal">Distance</p>
-<p class="text-white text-sm font-bold">2.1 miles</p>
-</div>
-</div>
-<!-- Obstacle Warnings -->
-<div class="border-t border-white/10 pt-4">
-<p class="text-white/80 text-sm font-medium pb-2">Potential Obstacles</p>
-<div class="flex flex-col gap-2">
-<div class="flex items-center gap-3">
-<span class="material-symbols-outlined text-yellow-400">construction</span>
-<p class="text-white/90 text-sm">Construction zone ahead</p>
-</div>
-<div class="flex items-center gap-3">
-<span class="material-symbols-outlined text-orange-400">stairs</span>
-<p class="text-white/90 text-sm">Steep incline reported</p>
-</div>
-</div>
-</div>
-<!-- Navigation Controls -->
-<div class="border-t border-white/10 pt-4 flex flex-col gap-4">
-<!-- AI Route Advisor Box -->
-<div id="ai-route-panel" class="bg-primary/10 border border-primary/30 rounded-xl p-4 hidden">
-  <div class="flex items-center gap-2 mb-2">
-    <span class="material-symbols-outlined text-primary text-lg">smart_toy</span>
-    <span class="text-primary text-sm font-bold">AI Route Advisor</span>
-    <div id="ai-route-loading" class="hidden ml-auto flex gap-1">
-      <span class="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style="animation-delay:0ms"></span>
-      <span class="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style="animation-delay:150ms"></span>
-    </div>
-  </div>
-  <p id="ai-route-advice" class="text-white/80 text-xs leading-relaxed"></p>
-</div>
-<button id="get-ai-advice-btn" onclick="getAIRouteAdvice()"
-  class="w-full flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white font-medium py-2.5 px-4 rounded-lg transition-colors border border-white/20">
-  <span class="material-symbols-outlined text-primary text-sm">smart_toy</span>
-  Get AI Route Advice
-</button>
-<button class="w-full flex items-center justify-center gap-2 bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-primary/90 transition-colors shadow-lg">
-<span class="material-symbols-outlined">navigation</span>
-                               Start Navigation
-                           </button>
-<div class="grid grid-cols-2 gap-3">
-<button class="flex items-center justify-center gap-2 bg-white/10 text-white font-medium py-2 px-3 rounded-lg hover:bg-white/20 transition-colors">
-<span class="material-symbols-outlined text-sm">cloud_download</span>
-                                   Offline
-                               </button>
-<button class="flex items-center justify-center gap-2 bg-white/10 text-white font-medium py-2 px-3 rounded-lg hover:bg-white/20 transition-colors">
-<span class="material-symbols-outlined text-sm">cancel</span>
-                                   End Route
-                               </button>
-</div>
-</div>
-</div>
-<!-- Voice and Direction Controls -->
-<div class="glassmorphism rounded-xl p-6 shadow-2xl flex flex-col gap-4">
-<p class="text-white/80 text-sm font-medium">Direction &amp; Voice Controls</p>
-<!-- Direction Modality -->
-<div class="flex items-center justify-between bg-black/30 rounded-lg p-1">
-<button class="flex-1 text-sm font-medium py-2 px-3 rounded-md bg-primary text-white">Voice</button>
-<button class="flex-1 text-sm font-medium py-2 px-3 rounded-md text-white/70 hover:bg-white/10">Text</button>
-<button class="flex-1 text-sm font-medium py-2 px-3 rounded-md text-white/70 hover:bg-white/10">Vibration</button>
-</div>
-<!-- Playback Controls -->
-<div class="flex items-center justify-center gap-4 py-2">
-<button class="text-white/70 hover:text-white transition-colors">
-<span class="material-symbols-outlined">skip_previous</span>
-</button>
-<button class="bg-white/10 p-3 rounded-full text-white hover:bg-white/20 transition-colors">
-<span class="material-symbols-outlined">pause</span>
-</button>
-<button class="text-white/70 hover:text-white transition-colors">
-<span class="material-symbols-outlined">skip_next</span>
-</button>
-</div>
-<!-- Voice Options -->
-<div class="flex items-center justify-between">
-<p class="text-white/80 text-sm">Voice</p>
-<select class="form-select bg-black/30 border-none text-white/90 text-sm rounded-md focus:ring-2 focus:ring-primary">
-<option>Female (Default)</option>
-<option>Male</option>
-<option>Neutral</option>
-</select>
-</div>
-<div class="flex items-center justify-between">
-<p class="text-white/80 text-sm">Speed</p>
-<input class="w-1/2 h-1 bg-white/30 rounded-full appearance-none accent-primary cursor-pointer" max="2" min="0.5" step="0.25" type="range" value="1"/>
-</div>
-</div>
-</aside>
-<!-- Right side: Map controls and notifications -->
-<div class="flex-1 flex flex-col justify-between items-end gap-4">
-<!-- Top Notification -->
-<div class="w-full lg:max-w-lg">
-<div class="flex flex-1 flex-col items-start justify-between gap-4 rounded-xl border border-cyan-400/50 bg-background-dark/70 p-5 shadow-lg @[480px]:flex-row @[480px]:items-center backdrop-blur-sm">
-<div class="flex items-center gap-4">
-<span class="material-symbols-outlined text-cyan-400 text-3xl animate-pulse">warning</span>
-<div class="flex flex-col gap-1">
-<p class="text-white text-base font-bold leading-tight">Obstacle Detected!</p>
-<p class="text-white/70 text-base font-normal leading-normal">Re-routing to a more accessible path to avoid construction.</p>
-</div>
-</div>
-</div>
-</div>
-<!-- Map Controls -->
-<div class="flex flex-col items-end gap-3">
-<div class="flex flex-col gap-0.5">
-<button class="flex size-12 items-center justify-center rounded-t-xl glassmorphism shadow-2xl">
-<span class="material-symbols-outlined text-white">add</span>
-</button>
-<button class="flex size-12 items-center justify-center rounded-b-xl glassmorphism shadow-2xl">
-<span class="material-symbols-outlined text-white">remove</span>
-</button>
-</div>
-<button class="flex size-12 items-center justify-center rounded-xl glassmorphism shadow-2xl">
-<span class="material-symbols-outlined text-white">my_location</span>
-</button>
-</div>
-</div>
-</div>
-<!-- Floating Accessibility Toolbar -->
-<div class="fixed bottom-4 right-4">
-<button class="flex size-14 items-center justify-center rounded-full bg-primary text-white shadow-2xl hover:bg-primary/90 transition-colors">
-<span class="material-symbols-outlined text-3xl">accessibility_new</span>
-</button>
-</div>
-</div>
-</div>
-<script>
-(function() {
-  const API_BASE = 'http://localhost:5000/api';
-
-  window.getAIRouteAdvice = async function() {
-    const originEl = document.querySelector('input[value="123 Main Street, Anytown"]') ||
-                     document.querySelectorAll('input')[0];
-    const destEl   = document.querySelector('input[value="Central City Library"]') ||
-                     document.querySelectorAll('input')[1];
-
-    const origin = originEl?.value || '123 Main Street, Anytown';
-    const destination = destEl?.value || 'Central City Library';
-
-    const panel = document.getElementById('ai-route-panel');
-    const adviceEl = document.getElementById('ai-route-advice');
-    const loading = document.getElementById('ai-route-loading');
-    const btn = document.getElementById('get-ai-advice-btn');
-
-    panel.classList.remove('hidden');
-    loading.classList.remove('hidden');
-    adviceEl.textContent = '';
-    btn.disabled = true;
-    btn.classList.add('opacity-50');
-
-    try {
-      const res = await fetch(`${API_BASE}/ai/route`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ origin, destination, preferences: ['wheelchair', 'ramp', 'elevator'] })
-      });
-      const data = await res.json();
-      adviceEl.textContent = data.advice || 'Unable to generate advice.';
-    } catch {
-      adviceEl.textContent = 'AI advisor unavailable. Please ensure the Daleel server is running.';
-    } finally {
-      loading.classList.add('hidden');
-      btn.disabled = false;
-      btn.classList.remove('opacity-50');
-    }
-  };
-})();
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: { "primary": "#0667f9", "background-dark": "#0f1723" },
+        fontFamily: { "display": ["Space Grotesk", "sans-serif"] },
+      },
+    },
+  }
 </script>
-</body></html>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Space Grotesk', sans-serif; background: #0f1723; }
+  #map { position: fixed; inset: 0; z-index: 0; }
+  .leaflet-tile { filter: brightness(0.55) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7); }
+  .leaflet-container { background: #0f1723; }
+  .glass {
+    background: rgba(15,23,35,0.82);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  /* Custom marker */
+  .wc-marker {
+    display: flex; flex-direction: column; align-items: center; cursor: pointer;
+  }
+  .wc-bubble {
+    width: 38px; height: 38px; border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    border: 2px solid rgba(255,255,255,0.3);
+  }
+  .wc-bubble span {
+    transform: rotate(45deg);
+    font-size: 18px !important;
+    color: white;
+  }
+  .wc-label {
+    margin-top: 4px;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 6px; border-radius: 4px;
+    white-space: nowrap; color: white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  }
+  .accessible   .wc-bubble { background: #16a34a; }
+  .accessible   .wc-label  { background: #16a34a; }
+  .partial      .wc-bubble { background: #d97706; }
+  .partial      .wc-label  { background: #d97706; }
+  .inaccessible .wc-bubble { background: #dc2626; }
+  .inaccessible .wc-label  { background: #dc2626; }
+
+  /* Popup */
+  .leaflet-popup-content-wrapper {
+    background: rgba(15,23,35,0.95) !important;
+    border: 1px solid rgba(255,255,255,0.15) !important;
+    border-radius: 12px !important;
+    backdrop-filter: blur(12px);
+    color: white !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+  }
+  .leaflet-popup-tip { background: rgba(15,23,35,0.95) !important; }
+  .leaflet-popup-content { margin: 0 !important; }
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<!-- Top Bar -->
+<div class="fixed top-4 left-4 right-4 z-10 flex gap-3 items-center">
+  <div class="glass rounded-xl flex items-center gap-3 px-4 py-2 flex-1 max-w-md">
+    <span class="material-symbols-outlined text-primary">search</span>
+    <input id="search-input" placeholder="Search locations..."
+      class="flex-1 bg-transparent text-white text-sm placeholder:text-white/40 outline-none border-none"/>
+  </div>
+  <a href="regular_user_dashboard.html" class="glass rounded-xl px-4 py-2 text-white text-sm font-medium hover:bg-white/10 transition-colors flex items-center gap-2">
+    <span class="material-symbols-outlined text-sm">dashboard</span>
+    Dashboard
+  </a>
+</div>
+
+<!-- Legend -->
+<div class="fixed top-20 left-4 z-10 glass rounded-xl p-4 flex flex-col gap-2 min-w-[160px]">
+  <p class="text-white text-xs font-bold mb-1 opacity-60 uppercase tracking-wider">Legend</p>
+  <div class="flex items-center gap-2">
+    <div class="w-3 h-3 rounded-full bg-green-600"></div>
+    <span class="text-green-400 text-xs font-medium">Accessible</span>
+  </div>
+  <div class="flex items-center gap-2">
+    <div class="w-3 h-3 rounded-full bg-amber-600"></div>
+    <span class="text-amber-400 text-xs font-medium">Partially Accessible</span>
+  </div>
+  <div class="flex items-center gap-2">
+    <div class="w-3 h-3 rounded-full bg-red-600"></div>
+    <span class="text-red-400 text-xs font-medium">Not Accessible</span>
+  </div>
+  <div class="border-t border-white/10 mt-1 pt-2">
+    <p id="count-label" class="text-white/50 text-xs">Loading...</p>
+  </div>
+</div>
+
+<!-- Filter Buttons -->
+<div class="fixed top-20 right-4 z-10 flex flex-col gap-2">
+  <button onclick="filterMarkers('all')"       id="btn-all"    class="filter-btn glass rounded-lg px-3 py-2 text-white text-xs font-medium hover:bg-white/10 transition-colors border border-primary/50">All</button>
+  <button onclick="filterMarkers('accessible')" id="btn-acc"   class="filter-btn glass rounded-lg px-3 py-2 text-green-400 text-xs font-medium hover:bg-green-500/10 transition-colors">✅ Accessible</button>
+  <button onclick="filterMarkers('partial')"    id="btn-part"  class="filter-btn glass rounded-lg px-3 py-2 text-amber-400 text-xs font-medium hover:bg-amber-500/10 transition-colors">⚠️ Partial</button>
+  <button onclick="filterMarkers('inaccessible')" id="btn-no"  class="filter-btn glass rounded-lg px-3 py-2 text-red-400 text-xs font-medium hover:bg-red-500/10 transition-colors">❌ Not Accessible</button>
+</div>
+
+<!-- My Location Button -->
+<div class="fixed bottom-6 right-4 z-10">
+  <button onclick="goToMyLocation()" class="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-xl hover:bg-blue-600 transition-colors">
+    <span class="material-symbols-outlined">my_location</span>
+  </button>
+</div>
+
+<script>
+const API = 'http://localhost:5000/api';
+const token = localStorage.getItem('token');
+
+// ── Sample locations (هيتبدلوا بالـ API) ──────────────────
+const sampleLocations = [
+  { id:1,  name: 'Cairo International Airport',  lat: 30.1219, lng: 31.4056, status: 'accessible',    category: 'transport',         rating: 4.5, reviews: 210 },
+  { id:2,  name: 'Cairo Opera House',            lat: 30.0372, lng: 31.2247, status: 'accessible',    category: 'public_building',   rating: 4.8, reviews: 178 },
+  { id:3,  name: 'Tahrir Square',                lat: 30.0444, lng: 31.2357, status: 'partial',       category: 'park',              rating: 3.2, reviews: 95  },
+  { id:4,  name: 'Egyptian Museum',              lat: 30.0478, lng: 31.2336, status: 'partial',       category: 'public_building',   rating: 3.8, reviews: 312 },
+  { id:5,  name: 'City Stars Mall',              lat: 30.0731, lng: 31.3422, status: 'accessible',    category: 'mall',              rating: 4.6, reviews: 430 },
+  { id:6,  name: 'Al-Azhar Park',                lat: 30.0418, lng: 31.2641, status: 'accessible',    category: 'park',              rating: 4.7, reviews: 267 },
+  { id:7,  name: 'Ramses Train Station',         lat: 30.0640, lng: 31.2481, status: 'inaccessible',  category: 'transport',         rating: 1.9, reviews: 88  },
+  { id:8,  name: 'Mall of Arabia',               lat: 29.9785, lng: 30.9562, status: 'accessible',    category: 'mall',              rating: 4.4, reviews: 195 },
+  { id:9,  name: 'Ain Shams University Hospital',lat: 30.0765, lng: 31.2824, status: 'partial',       category: 'hospital',          rating: 3.0, reviews: 144 },
+  { id:10, name: 'Carrefour Maadi',              lat: 29.9601, lng: 31.2573, status: 'accessible',    category: 'shop',              rating: 4.2, reviews: 320 },
+  { id:11, name: 'Old Cairo Coptic Area',        lat: 29.9999, lng: 31.2296, status: 'inaccessible',  category: 'public_building',   rating: 2.1, reviews: 56  },
+  { id:12, name: 'Heliopolis Grand Hotel',       lat: 30.0917, lng: 31.3205, status: 'accessible',    category: 'hotel',             rating: 4.9, reviews: 501 },
+  { id:13, name: 'Dokki Medical Center',         lat: 30.0370, lng: 31.2100, status: 'partial',       category: 'hospital',          rating: 3.5, reviews: 77  },
+  { id:14, name: 'Smart Village',                lat: 30.0721, lng: 30.9750, status: 'accessible',    category: 'public_building',   rating: 4.3, reviews: 89  },
+  { id:15, name: 'Nasr City Library',            lat: 30.0650, lng: 31.3350, status: 'inaccessible',  category: 'public_building',   rating: 2.5, reviews: 33  },
+];
+
+const statusConfig = {
+  accessible:    { cls: 'accessible',   label: 'Accessible',    color: '#16a34a' },
+  partial:       { cls: 'partial',      label: 'Partial',       color: '#d97706' },
+  inaccessible:  { cls: 'inaccessible', label: 'Not Accessible',color: '#dc2626' },
+};
+
+// ── Init Map ──────────────────────────────────────────────
+const mapObj = L.map('map', { zoomControl: false }).setView([30.0444, 31.2357], 12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap', maxZoom: 19
+}).addTo(mapObj);
+
+let allMarkers = [];
+let currentFilter = 'all';
+
+// ── Make custom marker icon ───────────────────────────────
+function makeIcon(status) {
+  const cfg = statusConfig[status] || statusConfig.partial;
+  return L.divIcon({
+    className: '',
+    html: `
+      <div class="wc-marker ${cfg.cls}">
+        <div class="wc-bubble">
+          <span class="material-symbols-outlined" style="font-size:18px;color:white;font-variation-settings:'FILL' 1">accessible</span>
+        </div>
+        <div class="wc-label">${cfg.label}</div>
+      </div>`,
+    iconSize: [60, 54],
+    iconAnchor: [19, 48],
+    popupAnchor: [0, -50]
+  });
+}
+
+// ── Popup content ─────────────────────────────────────────
+function makePopup(loc) {
+  const cfg   = statusConfig[loc.status] || statusConfig.partial;
+  const stars = '★'.repeat(Math.round(loc.rating)) + '☆'.repeat(5 - Math.round(loc.rating));
+  return `
+    <div style="padding:14px;min-width:220px;font-family:'Space Grotesk',sans-serif">
+      <p style="color:white;font-size:15px;font-weight:700;margin:0 0 4px">${loc.name}</p>
+      <p style="color:rgba(255,255,255,0.5);font-size:11px;margin:0 0 10px;text-transform:capitalize">${loc.category?.replace('_',' ')}</p>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
+        <div style="width:8px;height:8px;border-radius:50%;background:${cfg.color}"></div>
+        <span style="color:${cfg.color};font-size:12px;font-weight:600">${cfg.label}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px">
+        <span style="color:#fbbf24;font-size:13px">${stars}</span>
+        <span style="color:rgba(255,255,255,0.6);font-size:11px">${loc.rating} (${loc.reviews} reviews)</span>
+      </div>
+      <a href="location_details.html?id=${loc.id}"
+        style="display:block;text-align:center;background:#0667f9;color:white;padding:8px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none">
+        View Details
+      </a>
+    </div>`;
+}
+
+// ── Add markers to map ────────────────────────────────────
+function addMarkers(locations) {
+  allMarkers.forEach(m => mapObj.removeLayer(m.marker));
+  allMarkers = [];
+
+  locations.forEach(loc => {
+    const status = loc.accessibilityStatus === 'accessible' ? 'accessible'
+                 : loc.accessibilityStatus === 'not_accessible' ? 'inaccessible'
+                 : loc.status || 'partial';
+
+    const marker = L.marker([loc.lat || loc.latitude, loc.lng || loc.longitude], {
+      icon: makeIcon(status)
+    }).addTo(mapObj).bindPopup(makePopup({...loc, status}), { maxWidth: 260 });
+
+    allMarkers.push({ marker, status, name: loc.name });
+  });
+
+  document.getElementById('count-label').textContent = `${locations.length} locations`;
+}
+
+// ── Filter markers ────────────────────────────────────────
+function filterMarkers(filter) {
+  currentFilter = filter;
+  allMarkers.forEach(({ marker, status }) => {
+    if (filter === 'all' || status === filter) {
+      marker.addTo(mapObj);
+    } else {
+      mapObj.removeLayer(marker);
+    }
+  });
+  // Update button styles
+  document.querySelectorAll('.filter-btn').forEach(btn => btn.style.opacity = '0.5');
+  const map = { all:'btn-all', accessible:'btn-acc', partial:'btn-part', inaccessible:'btn-no' };
+  if (map[filter]) document.getElementById(map[filter]).style.opacity = '1';
+}
+
+// ── Search ────────────────────────────────────────────────
+document.getElementById('search-input').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  allMarkers.forEach(({ marker, name }) => {
+    if (!q || name.toLowerCase().includes(q)) {
+      marker.addTo(mapObj);
+    } else {
+      mapObj.removeLayer(marker);
+    }
+  });
+});
+
+// ── Load from API or fallback to sample ──────────────────
+async function loadLocations() {
+  try {
+    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+    const res  = await fetch(`${API}/locations`, { headers });
+    const data = await res.json();
+    const locs = data.data || data.locations || [];
+    if (locs.length) {
+      addMarkers(locs);
+      return;
+    }
+  } catch {}
+  // fallback to sample data
+  addMarkers(sampleLocations);
+}
+
+// ── My Location ───────────────────────────────────────────
+function goToMyLocation() {
+  navigator.geolocation?.getCurrentPosition(pos => {
+    mapObj.setView([pos.coords.latitude, pos.coords.longitude], 15);
+    L.circleMarker([pos.coords.latitude, pos.coords.longitude], {
+      radius: 10, fillColor: '#0667f9', color: '#fff', weight: 2, fillOpacity: 1
+    }).addTo(mapObj).bindPopup('📍 You are here').openPopup();
+  });
+}
+
+loadLocations();
+navigator.geolocation?.getCurrentPosition(pos =>
+  mapObj.setView([pos.coords.latitude, pos.coords.longitude], 13)
+);
+</script>
+</body>
+</html>

@@ -38,7 +38,7 @@
 <div class="flex flex-col gap-8">
 <div class="flex items-center gap-2">
 <span class="material-symbols-outlined text-primary text-3xl">accessible</span>
-<span class="text-white text-xl font-bold">Wheelchair Map</span>
+<span class="text-white text-xl font-bold"> Daleel</span>
 </div>
 <div class="flex flex-col gap-4">
 <div class="flex gap-3 items-center">
@@ -254,5 +254,18 @@
 </div>
 localStorage.setItem('token', data.token);
 localStorage.setItem('user', JSON.stringify(data.user));
+<script>
+  // جيبي بيانات اليوزر من localStorage
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const name = user.name || 'User';
 
+  // عدلي الـ welcome message
+  document.querySelector('h1').textContent = `Welcome back, ${name}!`;
+
+  // عدلي الاسم في الـ sidebar
+  document.querySelector('aside h1').textContent = name;
+
+  // عدلي الإيميل في الـ sidebar
+  document.querySelector('aside p').textContent = user.email || '';
+</script>
 </body></html>
